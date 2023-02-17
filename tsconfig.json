@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "useDefineForClassFields": true,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "target": "es5",
+        "jsx": "react",
+        "declaration": true,
+        "allowJs": false,
+        "downlevelIteration": true,
+        "lib": ["dom", "es2015"]
+    }
+}

@@ -1,0 +1,33 @@
+{
+  "packages": [
+    "packages/*"
+  ],
+  "useWorkspaces": true,
+  "version": "0.1.0",
+   "command": {
+    "version": {
+      "conventionalCommits": true
+    },
+    "publish": {
+      "conventionalCommits": true,
+      "ignoreChanges": [
+        "*.md",
+        "examples/**",
+        "test/**",
+        "node_modules"
+      ],
+      "message": "build(release): 😊 publish %s"
+    }
+  },
+  "ignoreChanges": [
+    "**/*.md",
+    "**/*.test.ts",
+    "**/*.e2e.ts",
+    "**/demos/**",
+    "**/fixtures/**",
+    "**/dist/**",
+    "**/lib/**",
+    "**/es/**",
+    "**/test/**"
+  ]
+}

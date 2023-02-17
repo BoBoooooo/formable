@@ -1,0 +1,27 @@
+{
+    "name": "@formable/react",
+    "version": "0.1.0",
+    "author": "BoBo<boboooooo159@gmail.com>",
+    "license": "MIT",
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
+    "scripts": {
+        "precommit": "lint-staged",
+        "lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --color --fix",
+        "build": "tsc",
+        "watch": "tsc --watch"
+    },
+    "files": [
+        "lib"
+    ],
+    "dependencies": {
+        "@formable/core": "^0.1.0",
+        "mobx-react-lite": "^3.4.0"
+    },
+    "peerDependencies": {
+        "@types/react": "^17.0.3",
+        "@types/react-dom": "^17.0.3",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2"
+    }
+}

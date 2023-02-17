@@ -1,0 +1,19 @@
+{
+  "name": "@formable/core",
+  "version": "0.1.0",
+  "description": "formable core with mobx",
+  "author": "BoBo<boboooooo159@gmail.com>",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "precommit": "lint-staged",
+    "lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --color --fix",
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "mobx": "^6.8.0",
+    "async-validator": "^4.2.5"
+  }
+}
