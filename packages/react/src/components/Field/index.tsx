@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo } from "react";
-import { useFormStore } from "../../context/form-instance";
+import { useFormStore } from "@/context/form-instance";
 
 export const Field: React.FC<Partial<{
     initialValue: any;

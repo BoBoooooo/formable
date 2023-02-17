@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { Form as FormStore } from "@formable/core";
-import { FormProvider } from "../../context/form-instance";
+import { FormProvider } from "@/context/form-instance";
 
 export const Form: React.FC<{
     initialValues?: Record<string, any>;
