@@ -19,10 +19,17 @@ export class Form {
     }
 
     registerField(name: string, initialData: any) {
+        
         if(name){
-            let field: Field = this.fieldMap.get(name);
+            let field = this.fieldMap.get(name);
             if (field == null) {
-                field = new Field(initialData);
+                console.log('--registerField--', name, initialData);
+                
+                field = new Field({
+                    ...initialData,
+                    // 优先读取全局表单默认值
+                    initialValue: this.initialValues?.[name] ?? initialData?.initialValue
+                });
                 this.fieldMap.set(name, field);
             }
             return field;

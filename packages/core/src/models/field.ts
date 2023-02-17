@@ -12,12 +12,14 @@ export class Field {
 
     constructor(data: any) {
         this.initialValue = data.initialValue;
+        this.value = data.initialValue;
         this.name = data.name;
         makeObservable(this);
     }
 
     @action
     setValue(newValue: any){
+        console.log('setValue', newValue);
         this.value = newValue;
     }
 
