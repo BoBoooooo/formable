@@ -5,15 +5,23 @@
   "author": "BoBo<boboooooo159@gmail.com>",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "module": "es/index.js",
   "scripts": {
     "precommit": "lint-staged",
     "lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --color --fix",
-    "build": "tsc && tsc-alias",
-    "build:watch": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")"
+    "build": "rimraf -rf lib esm && yarn build:esm && yarn build:cjs",
+    "build:cjs": "tsc --project tsconfig.prod.json",
+    "build:esm": "tsc --project tsconfig.prod.json --module es2015 --outDir esm",
+    "build:watch": "tsc --watch",
+    "prepublishOnly": "yarn build"
   },
+  "files": [
+    "lib",
+    "es"
+],
   "license": "MIT",
   "dependencies": {
     "mobx": "^6.8.0",
-    "async-validator": "^4.2.5"
+    "async-validator": "^4.2.5"  
   }
 }

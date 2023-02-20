@@ -1,5 +1,5 @@
 {
-    "name": "@formable/react",
+    "name": "@formable/antd",
     "version": "0.1.0",
     "author": "BoBo<boboooooo159@gmail.com>",
     "license": "MIT",
@@ -21,7 +21,9 @@
     ],
     "dependencies": {
         "@formable/core": "^0.1.0",
-        "mobx-react-lite": "^3.4.0"
+        "@formable/react": "^0.1.0",
+        "mobx-react-lite": "^3.4.0",
+        "antd": "^5.2.2"
     },
     "peerDependencies": {
         "@types/react": "^17.0.3",

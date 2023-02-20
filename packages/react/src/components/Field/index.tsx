@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo } from "react";
-import { useFormStore } from "@/context/form-instance";
+import { useFormStore } from "../../context/form-instance";
 
 export const Field: React.FC<Partial<{
     initialValue: any;
@@ -38,12 +38,12 @@ export const Field: React.FC<Partial<{
             // 自定义组件
             if (children) {
                 /**
-                 * 不支持下述写法
-                 * <Field>
-                 *      <Input />
-                 *      <Input />
-                 * </Field>
-                 */
+         * 不支持下述写法
+         * <Field>
+         *      <Input />
+         *      <Input />
+         * </Field>
+         */
 
                 return React.isValidElement(children)
                     ? React.cloneElement(children, {
@@ -55,7 +55,7 @@ export const Field: React.FC<Partial<{
                     : children;
             }
             return null;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+            // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [name, children, valuePropName, fieldStore?.value, trigger]);
 
         // provider注入form上下文
