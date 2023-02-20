@@ -1,16 +1,16 @@
 import { makeObservable, observable, action, computed } from "mobx";
-import { Field } from "./field";
+import { FieldStore } from "./field";
 
-export class Form {
+export class FormStore {
     @observable name: string;
 
-    @observable fieldMap = new Map<string, Field>();
+    @observable fieldMap = new Map<string, FieldStore>();
 
     @observable initialValues: any;
 
     onSubmit: any;
 
-    constructor(initialData: any) {
+    constructor(initialData?: any) {
         makeObservable(this);
         
         this.initialValues = initialData?.initialValues;
@@ -19,13 +19,12 @@ export class Form {
     }
 
     registerField(name: string, initialData: any) {
-        
         if(name){
             let field = this.fieldMap.get(name);
             if (field == null) {
                 console.log('--registerField--', name, initialData);
                 
-                field = new Field({
+                field = new FieldStore({
                     ...initialData,
                     // 优先读取全局表单默认值
                     initialValue: this.initialValues?.[name] ?? initialData?.initialValue
@@ -41,6 +40,7 @@ export class Form {
         preserve && this.fieldMap.delete(name);
     }
 
+    @action
     setValues(values: any) {
         this.fieldMap.forEach((field, key) => {
             // eslint-disable-next-line no-param-reassign
@@ -58,7 +58,7 @@ export class Form {
     }
 
     validateFields() {
-        this.fieldMap.forEach((field: Field) => field.validate());
+        this.fieldMap.forEach((field: FieldStore) => field.validate());
     }
 
     submit(){
@@ -68,25 +68,22 @@ export class Form {
     /**
     Clear Form Fields
   */
+    @action
     clear(): void {
-        this.fieldMap.forEach((field: Field) => field.clear());
+        this.fieldMap.forEach((field: FieldStore) => field.clear());
     }
 
     /**
     Reset Form Fields
   */
+    @action
     reset(): void {
-        this.fieldMap.forEach((field: Field) => field.reset());
+        this.fieldMap.forEach((field: FieldStore) => field.reset());
     }
 
-    // @computed
-    // get getTitle() {
-    //     return `${this.title}123`;
-    // }
-
-    // @action
-    // toggle() {
-    //     this.finished = !this.finished;
-    //     this.title = "123";
-    // }
+    getInstance(){
+        return {
+            submit: this.submit
+        };
+    }
 }

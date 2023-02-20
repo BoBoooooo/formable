@@ -1,7 +1,7 @@
 import { makeObservable, observable, action, computed } from "mobx";
-import Schema from "async-validator";
+// import Schema from "async-validator";
 
-export class Field {
+export class FieldStore {
     @observable name: any;
 
     @observable value: any;

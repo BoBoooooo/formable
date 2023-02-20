@@ -1,7 +1,7 @@
-import { Form } from '@formable/core';
 import React, { useContext } from 'react';
+import { FormStore } from '@formable/core';
 
-export const FormContext = React.createContext<Form>(null);
+export const FormContext = React.createContext<FormStore>(null);
 export const FormProvider = FormContext.Provider;
 
 // hook
