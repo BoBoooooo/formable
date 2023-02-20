@@ -8,8 +8,8 @@
   "scripts": {
     "precommit": "lint-staged",
     "lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --color --fix",
-    "build": "tsc",
-    "watch": "tsc --watch"
+    "build": "tsc && tsc-alias",
+    "build:watch": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")"
   },
   "license": "MIT",
   "dependencies": {

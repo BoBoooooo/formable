@@ -8,7 +8,7 @@ const Demo = () => {
             <Form
                 onSubmit={console.log}
                 initialValues={{
-                    user: "out",
+                    user: "ou1t",
                 }}>
                 <Field label="user" name="user" initialValue="in">
                     <Input />
