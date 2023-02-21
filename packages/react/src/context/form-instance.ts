@@ -5,6 +5,6 @@ export const FormContext = React.createContext<FormStore>(null);
 export const FormProvider = FormContext.Provider;
 
 // hook
-export const useFormStore = () => {
+export const useFormInstance = () => {
     return useContext(FormContext);
 };

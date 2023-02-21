@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo } from "react";
-import { useFormStore } from "../../context/form-instance";
+import { useFormInstance } from "../../context/form-instance";
 
 export const Field: React.FC<Partial<{
     initialValue: any;
@@ -19,7 +19,7 @@ export const Field: React.FC<Partial<{
         valuePropName = "value",
         trigger = "onChange",
     }) => {
-        const form = useFormStore();
+        const form = useFormInstance();
         const fieldStore = form.registerField(name, { initialValue });
         console.log("fieldStore", fieldStore);
 
@@ -38,18 +38,18 @@ export const Field: React.FC<Partial<{
             // 自定义组件
             if (children) {
                 /**
-         * 不支持下述写法
-         * <Field>
-         *      <Input />
-         *      <Input />
-         * </Field>
-         */
+                 * 不支持下述写法
+                 * <Field>
+                 *      <Input />
+                 *      <Input />
+                 * </Field>
+                 */
 
                 return React.isValidElement(children)
                     ? React.cloneElement(children, {
                         [valuePropName]: fieldStore.value,
                         [trigger]: (e: any) => {
-                            fieldStore.setValue(e?.target?.value ?? e);
+                            form.setFieldValue(name, e?.target?.value ?? e);
                         },
                     })
                     : children;

@@ -1,11 +1,13 @@
 import React from "react";
-import { Form, Field } from "@formable/react";
+import { Form, Field, FormObserver, useForm } from "@formable/react";
 import { Button, Input } from "antd";
 
 const Demo = () => {
+    // const [form] = useForm();
     return (
         <div className="examples-wrapper">
             <Form
+                // form={form}
                 onSubmit={console.log}
                 initialValues={{
                     user: "ou1t",
@@ -19,6 +21,11 @@ const Demo = () => {
                 <Field>
                     <Button htmlType="submit">submit</Button>
                 </Field>
+                <FormObserver>
+                    {(form) => {
+                        return JSON.stringify(form.values) || "无";
+                    }}
+                </FormObserver>
             </Form>
         </div>
     );
