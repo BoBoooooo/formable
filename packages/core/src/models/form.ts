@@ -1,4 +1,4 @@
-import { makeObservable, observable, action, computed } from "mobx";
+import { makeObservable, observable, action, computed, toJS } from "mobx";
 import { FieldStore } from "./field";
 
 export class FormStore {
@@ -66,7 +66,6 @@ export class FormStore {
         }
     }
 
-
     @action
     getFieldValues() {
         const values: any = {};
@@ -75,9 +74,8 @@ export class FormStore {
             values[key] = field.value;
         });
         // this.values = values;
-        return values;
+        return toJS(values);
     }
-
 
     validateFields() {
         this.fieldMap.forEach((field: FieldStore) => field.validate());
@@ -87,7 +85,6 @@ export class FormStore {
     submit(){
         return this.onSubmit?.(this.getFieldValues());
     }
-
   
     @action
     clear(): void {
@@ -97,6 +94,10 @@ export class FormStore {
     @action
     reset(): void {
         this.fieldMap.forEach((field: FieldStore) => field.reset());
+    }
+    
+    updateFieldLayout(name: string, newLayout: Record<string, any>){
+        this.fieldMap.get(name).updateLayout(newLayout);
     }
 
     getInstance(){

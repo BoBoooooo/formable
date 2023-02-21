@@ -21,7 +21,11 @@
     ],
     "dependencies": {
         "@formable/core": "^0.1.0",
-        "mobx-react-lite": "^3.4.0"
+        "mobx-react-lite": "^3.4.0",
+        "lodash.isequal": "^4.5.0"
+    },
+    "devDependencies": {
+        "@types/lodash.isequal": "^4.5.6"
     },
     "peerDependencies": {
         "@types/react": "^17.0.3",

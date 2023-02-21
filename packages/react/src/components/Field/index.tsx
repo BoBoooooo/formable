@@ -1,9 +1,10 @@
 import { observer } from "mobx-react-lite";
-import React, { Fragment, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useFormInstance } from "../../context/form-instance";
 import { isValidComponent } from "../../utils/helper";
+import { useDeepCompareEffect } from "../../utils/useDeepCompareEffect";
 
-export const Field: React.FC<Partial<{
+type IFieldProps = Partial<{
     initialValue: any;
     name: string;
     preserve: boolean;
@@ -11,7 +12,9 @@ export const Field: React.FC<Partial<{
     label: React.ReactNode;
     trigger: string;
     decorator: [node: any, props?: any];
-}>> = observer(
+}>;
+
+export const Field: React.FC<IFieldProps> = observer(
     ({
         preserve,
         name,
@@ -23,8 +26,16 @@ export const Field: React.FC<Partial<{
         trigger = "onChange",
     }) => {
         const form = useFormInstance();
-        const fieldStore = form.registerField(name, { initialValue });
-        console.log("fieldStore", fieldStore);
+        const fieldStore = form.registerField(name, { initialValue});
+
+        useDeepCompareEffect(() => {
+            // 重置field.layout
+            fieldStore?.initLayout({
+                ...decorator?.[1],
+                label
+            });
+        }, [decorator, label]);
+        
 
         useEffect(() => {
             return () => {
@@ -68,7 +79,7 @@ export const Field: React.FC<Partial<{
                 {
                     isValidComponent(decorator?.[0]) ?  React.createElement(decorator?.[0] as any, {
                         label,
-                        ...decorator?.[1]
+                        ...fieldStore.layout,
                     }, chlidrenRender): (
                         <>
                             {label}  

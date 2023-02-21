@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, Field, FormObserver, useForm } from "@formable/react";
 import { Button, Input, Form as AntdForm } from "antd";
 
@@ -8,8 +8,12 @@ const Demo = () => {
             user: "ou1t",
         },
     });
+
+    const [bool, setBool] = useState(false);
     return (
         <div className="examples-wrapper">
+            bool state: 
+            { bool? 'true': 'false'}
             <Form
                 form={form}
                 onSubmit={console.log}
@@ -25,7 +29,7 @@ const Demo = () => {
                             },
                         },
                     ]}
-                    label="user"
+                    label={`user${bool?'外部更新':'初始'}`}
                     name="user"
                     initialValue="in">
                     <Input />
@@ -50,6 +54,21 @@ const Demo = () => {
                         </Button>
                         <Button onClick={() => form.reset()}>重置</Button>
                         <Button onClick={() => form.clear()}>清空</Button>
+                        <Button
+                            onClick={() =>
+                            {
+                                form.updateFieldLayout("user", {
+                                    label: "联动 user!!!!!",
+                                });
+                                
+                                form.updateFieldLayout("age", {
+                                    label: "联动 age!!!!!",
+                                });
+                            }}>
+                            联动修改UI
+                        </Button>
+                        <Button onClick={()=> setBool(!bool)}>修改外部状态</Button>
+
                     </Button.Group>
                 </Field>
             </Form>

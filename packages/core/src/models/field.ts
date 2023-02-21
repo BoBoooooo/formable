@@ -11,13 +11,13 @@ export class FieldStore {
 
     @observable rules: any;
 
+    @observable layout: Record<string, any>;
+
     private readonly form: FormStore;
 
     constructor(form: FormStore, data: any) {
         this.initialValue = data.initialValue;
         this.value = data.initialValue;
-        console.log(' this.value ', this.value );
-        
         this.name = data.name;
         this.form = form;
         makeObservable(this);
@@ -41,5 +41,18 @@ export class FieldStore {
     @action
     clear() {
         this.value = null;
+    }
+
+    @action
+    initLayout(layout: typeof this.layout){
+        this.layout = layout;
+    }
+
+    @action
+    updateLayout(newLayout: typeof this.layout){
+        this.layout = {
+            ...this.layout,
+            ...newLayout
+        };
     }
 }
