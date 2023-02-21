@@ -1,6 +1,6 @@
 import React from "react";
 import { Form, Field, FormObserver, useForm } from "@formable/react";
-import { Button, Input } from "antd";
+import { Button, Input, Form as AntdForm } from "antd";
 
 const Demo = () => {
     const [form] = useForm({
@@ -16,10 +16,25 @@ const Demo = () => {
                 initialValues={{
                     user: "ou1t",
                 }}>
-                <Field label="user" name="user" initialValue="in">
+                <Field
+                    decorator={[
+                        AntdForm.Item,
+                        {
+                            labelCol: {
+                                span: 4,
+                            },
+                        },
+                    ]}
+                    label="user"
+                    name="user"
+                    initialValue="in">
                     <Input />
                 </Field>
-                <Field label="age" name="age" initialValue="in">
+                <Field
+                    decorator={[AntdForm.Item]}
+                    label="age"
+                    name="age"
+                    initialValue="in">
                     <Input />
                 </Field>
                 <FormObserver>
@@ -30,11 +45,12 @@ const Demo = () => {
                 <Field>
                     <Button.Group>
                         <Button htmlType="submit">原生提交</Button>
-                        <Button type="primary" onClick={()=> form.submit()}>API提交</Button>
-                        <Button onClick={()=> form.reset()}>重置</Button>
-                        <Button onClick={()=> form.clear()}>清空</Button>
+                        <Button type="primary" onClick={() => form.submit()}>
+                            API提交
+                        </Button>
+                        <Button onClick={() => form.reset()}>重置</Button>
+                        <Button onClick={() => form.clear()}>清空</Button>
                     </Button.Group>
-
                 </Field>
             </Form>
         </div>

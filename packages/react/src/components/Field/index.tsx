@@ -1,20 +1,23 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useMemo } from "react";
+import React, { Fragment, useEffect, useMemo } from "react";
 import { useFormInstance } from "../../context/form-instance";
+import { isValidComponent } from "../../utils/helper";
 
 export const Field: React.FC<Partial<{
     initialValue: any;
     name: string;
     preserve: boolean;
     valuePropName: string;
-    trigger: string;
     label: React.ReactNode;
+    trigger: string;
+    decorator: [node: any, props?: any];
 }>> = observer(
     ({
         preserve,
         name,
         initialValue,
         label,
+        decorator,
         children,
         valuePropName = "value",
         trigger = "onChange",
@@ -58,13 +61,23 @@ export const Field: React.FC<Partial<{
             // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [name, children, valuePropName, fieldStore?.value, trigger]);
 
-        // provider注入form上下文
+        
         return (
             <div className="item-wrapper">
-                {/* Label布局 */}
-                {label}
-                {/* 输入控件 */}
-                {chlidrenRender}
+                {/* decorator */}
+                {
+                    isValidComponent(decorator?.[0]) ?  React.createElement(decorator?.[0] as any, {
+                        label,
+                        ...decorator?.[1]
+                    }, chlidrenRender): (
+                        <>
+                            {label}  
+                            {/* 输入控件 */}
+                            {chlidrenRender}
+                        </>
+                    )
+                }
+              
             </div>
         );
     }
