@@ -9,11 +9,10 @@ export const Form: React.FC<{
     initialValues?: Record<string, any>;
     onSubmit?: any;
 }> = observer(({ children, initialValues, form: propForm, ...restProps }) => {
-    console.log('initialValues',initialValues);
-    
-    const [form] = useForm(propForm, { initialValues });
+    const [form] = useForm({ initialValues }, propForm);
+
     useEffect(() => {
-        form.initialize(restProps);
+        form.syncInitialize(restProps);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [restProps]);
 

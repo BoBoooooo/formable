@@ -13,15 +13,14 @@ export class FormStore {
     onSubmit: any;
 
     constructor(options?: any) {
-        console.log('初始化form', options);
-        
+        console.log('--初始化form--', options);
         this.initialValues = options?.initialValues;
         this.values = this.initialValues || {};
         makeObservable(this);
     }
 
-    initialize(initialData?: any){
-        this.initialValues = initialData?.initialValues;
+    // 更新部分数据
+    syncInitialize(initialData?: any){
         this.onSubmit = initialData?.onSubmit;
     }
 
@@ -29,14 +28,17 @@ export class FormStore {
         if(name){
             let field = this.fieldMap.get(name);
             if (field == null) {
-                console.log('--registerField--', name, initialData, this.initialValues);
-                
+                console.log('--registerField--', name, initialData);
+                // 优先读取全局表单默认值
+                const intialValue = this.initialValues?.[name] ?? initialData?.initialValue;
                 field = new FieldStore(this, {
                     ...initialData,
-                    // 优先读取全局表单默认值
-                    initialValue: this.initialValues?.[name] ?? initialData?.initialValue
+                    initialValue: intialValue
                 });
                 this.fieldMap.set(name, field);
+
+                // 同步初始值至form.values
+                this.setFieldValue(name, intialValue);
             }
             return field;
         }
@@ -81,21 +83,17 @@ export class FormStore {
         this.fieldMap.forEach((field: FieldStore) => field.validate());
     }
 
+    // 回调onSubmit事件
     submit(){
         return this.onSubmit?.(this.getFieldValues());
     }
 
-    /**
-    Clear Form Fields
-  */
+  
     @action
     clear(): void {
         this.fieldMap.forEach((field: FieldStore) => field.clear());
     }
 
-    /**
-    Reset Form Fields
-  */
     @action
     reset(): void {
         this.fieldMap.forEach((field: FieldStore) => field.reset());
@@ -104,11 +102,10 @@ export class FormStore {
     getInstance(){
         return {
             submit: this.submit,
-            initialize: this.initialize
         };
     }
 }
 
-export const createForm = ()=>{
-    return new FormStore();
+export const createForm = (options?: any)=>{
+    return new FormStore(options);
 };
