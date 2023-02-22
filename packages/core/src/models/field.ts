@@ -66,12 +66,12 @@ export class FieldStore {
     }
 
     @action
-    initLayout(layout: typeof this.layout) {
+    initLayout(layout: any) {
         this.layout = layout;
     }
 
     @action
-    updateLayout(newLayout: typeof this.layout) {
+    updateLayout(newLayout: any) {
         this.layout = {
             ...this.layout,
             ...newLayout,

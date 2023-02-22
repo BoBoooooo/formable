@@ -8,7 +8,10 @@ export function useForm(options?: any, initForm?: FormStore): [FormStore] {
     const formRef = React.useRef<FormStore>();
     if (!formRef.current) {
         if (initForm) {
-            formRef.current = initForm;
+            if (initForm instanceof FormStore === false) 
+                throw new Error('form instance must created by createForm or useForm');
+            else
+                formRef.current = initForm;
         } else {
             formRef.current = new FormStore(options);
             // formRef.current = formStore.getInstance();
