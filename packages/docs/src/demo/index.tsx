@@ -38,6 +38,7 @@ const Demo = () => {
                     decorator={[AntdForm.Item]}
                     label="age"
                     name="age"
+                    required
                     initialValue="in">
                     <Input />
                 </Field>

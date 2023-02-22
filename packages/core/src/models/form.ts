@@ -32,6 +32,7 @@ export class FormStore {
                 // 优先读取全局表单默认值
                 const intialValue = this.initialValues?.[name] ?? initialData?.initialValue;
                 field = new FieldStore(this, {
+                    name,
                     ...initialData,
                     initialValue: intialValue
                 });

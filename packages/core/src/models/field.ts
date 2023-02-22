@@ -1,6 +1,7 @@
-import { makeObservable, observable, action, computed } from "mobx";
+import { makeObservable, observable, action, computed, toJS } from "mobx";
+import Schema from "async-validator";
+import { mergeRules } from "../utils/helper";
 import { FormStore } from "./form";
-// import Schema from "async-validator";
 
 export class FieldStore {
     @observable name: any;
@@ -16,12 +17,19 @@ export class FieldStore {
     private readonly form: FormStore;
 
     constructor(form: FormStore, data: any) {
+        this.form = form;
+        this.name = data.name;
         this.initialValue = data.initialValue;
         this.value = data.initialValue;
-        this.name = data.name;
-        this.form = form;
+        // 校验 rules required拼接
+        this.rules = mergeRules(data.rules , data.required);
         makeObservable(this);
     }
+
+    // @action
+    // get required() {
+    //     return this.rules.some((rule: any) => !!rule?.required);
+    // }
 
     @action
     setValue(newValue: any) {
@@ -30,7 +38,21 @@ export class FieldStore {
 
     @action
     validate() {
-        this.value = this.initialValue ?? null;
+        const validator = new Schema({
+            [this.name]: this.rules
+        });
+        validator.validate(
+            {
+                [this.name]: toJS(this.value),
+            },
+            { firstFields: true },
+            (errors, fields) => {
+                if (errors) {
+                    // TODO: 收集到错误堆栈
+                    console.log("错误列表", errors);
+                }
+            }
+        );
     }
 
     @action
@@ -44,15 +66,15 @@ export class FieldStore {
     }
 
     @action
-    initLayout(layout: typeof this.layout){
+    initLayout(layout: typeof this.layout) {
         this.layout = layout;
     }
 
     @action
-    updateLayout(newLayout: typeof this.layout){
+    updateLayout(newLayout: typeof this.layout) {
         this.layout = {
             ...this.layout,
-            ...newLayout
+            ...newLayout,
         };
     }
 }

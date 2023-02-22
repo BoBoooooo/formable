@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { Fragment, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useFormInstance } from "../../context/form-instance";
 import { isValidComponent } from "../../utils/helper";
 import { useDeepCompareEffect } from "../../utils/useDeepCompareEffect";
@@ -11,6 +11,9 @@ type IFieldProps = Partial<{
     valuePropName: string;
     label: React.ReactNode;
     trigger: string;
+    rules: any[];
+    required: boolean;
+    validateTrigger:  string | string[];
     decorator: [node: any, props?: any];
 }>;
 
@@ -24,9 +27,12 @@ export const Field: React.FC<IFieldProps> = observer(
         children,
         valuePropName = "value",
         trigger = "onChange",
+        validateTrigger = 'onChange',
+        required,
+        rules
     }) => {
         const form = useFormInstance();
-        const fieldStore = form.registerField(name, { initialValue});
+        const fieldStore = form.registerField(name, { initialValue, rules, required});
 
         useDeepCompareEffect(() => {
             // 重置field.layout
@@ -64,6 +70,11 @@ export const Field: React.FC<IFieldProps> = observer(
                         [valuePropName]: fieldStore.value,
                         [trigger]: (e: any) => {
                             form.setFieldValue(name, e?.target?.value ?? e);
+                            if(validateTrigger === trigger && (fieldStore.rules?.length)){
+                                fieldStore.validate();
+                            }
+                            // TODO: 触发原生控件onChange
+                          
                         },
                     })
                     : children;
