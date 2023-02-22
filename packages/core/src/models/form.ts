@@ -67,14 +67,13 @@ export class FormStore {
     }
 
     @action
+    getFieldValue(name: string) {
+        return toJS(this.values[name]);
+    }
+
+    @action
     getFieldValues() {
-        const values: any = {};
-        this.fieldMap.forEach((field, key) => {
-            // eslint-disable-next-line no-param-reassign
-            values[key] = field.value;
-        });
-        // this.values = values;
-        return toJS(values);
+        return toJS(this.values);
     }
 
     validateFields() {

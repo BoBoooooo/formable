@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useMemo } from "react";
+import React, { Fragment, useEffect, useMemo } from "react";
 import { useFormInstance } from "../../context/form-instance";
 import { isValidComponent } from "../../utils/helper";
 import { useDeepCompareEffect } from "../../utils/useDeepCompareEffect";
@@ -74,22 +74,16 @@ export const Field: React.FC<IFieldProps> = observer(
 
         
         return (
-            <div className="item-wrapper">
-                {/* decorator */}
-                {
-                    isValidComponent(decorator?.[0]) ?  React.createElement(decorator?.[0] as any, {
-                        label,
-                        ...fieldStore.layout,
-                    }, chlidrenRender): (
-                        <>
-                            {label}  
-                            {/* 输入控件 */}
-                            {chlidrenRender}
-                        </>
-                    )
-                }
-              
-            </div>
+            isValidComponent(decorator?.[0]) ?  React.createElement(decorator?.[0] as any, {
+                label,
+                ...fieldStore.layout,
+            }, chlidrenRender): (
+                <>
+                    {label}  
+                    {/* 输入控件 */}
+                    {chlidrenRender}
+                </>
+            )
         );
     }
 );
