@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
     FormStore
 } from '@formable/core';
@@ -8,6 +8,7 @@ import {
 } from '@formable/react';
 import type { FormProps } from 'antd';
 import { JSXComponent } from '../../types';
+import { FormLayout } from '../FormLayout';
 
 export interface FormableProps<Values = any> extends Omit<FormProps, 'form' |"onFinsih" | 'onFinsihFailed'> {
     form?: FormStore
@@ -33,23 +34,23 @@ export const Form: React.FC<FormableProps> = ({
     }, [onSubmit]);
 
 
-    // eslint-disable-next-line no-shadow
-    const renderContent = () => (
-        <Fragment {...restProps}>
-            {React.createElement(
-                component,
-                {
-                    onSubmit(e: React.FormEvent) {
-                        e?.stopPropagation?.();
-                        e?.preventDefault?.();
-                        form.submit();
+    return (
+        <FormProvider form={form}>
+            <FormLayout {...restProps}>
+                {React.createElement(
+                    component,
+                    {
+                        onSubmit(e: React.FormEvent) {
+                            e?.stopPropagation?.();
+                            e?.preventDefault?.();
+                            form.submit();
+                        },
                     },
-                },
-                restProps.children
-            )}
-        </Fragment>
+                    restProps.children
+                )}
+            </FormLayout>
+        </FormProvider>
     );
-    return <FormProvider form={form}>{renderContent()}</FormProvider>;
 };
 
 export default Form;
