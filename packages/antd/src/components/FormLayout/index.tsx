@@ -27,7 +27,6 @@ export const FormLayout: React.FC<FormableProps> = (props) => {
     const {
         prefixCls: customizePrefixCls,
         className,
-        rootClassName,
         size = contextSize,
         disabled = contextDisabled,
         colon,
@@ -67,7 +66,6 @@ export const FormLayout: React.FC<FormableProps> = (props) => {
             [`${prefixCls}-${size}`]: size,
         },
         className,
-        rootClassName
     );
 
     const formContextValue = useMemo(

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Field, FormObserver, useForm } from "@formable/react";
 import { Form } from "@formable/antd";
 import { Button, Input, Form as AntdForm } from "antd";
+import 'antd/dist/antd.css';
 
 const Demo = () => {
     const [form] = useForm({

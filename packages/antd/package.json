@@ -23,7 +23,7 @@
         "@formable/core": "^0.1.0",
         "@formable/react": "^0.1.0",
         "mobx-react-lite": "^3.4.0",
-        "antd": "^5.2.2",
+        "antd": "^4.x",
         "classnames": "^2.3.2"
     },
     "peerDependencies": {
