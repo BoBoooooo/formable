@@ -10,7 +10,7 @@ import type { FormProps } from 'antd';
 import { JSXComponent } from '../../types';
 import { FormLayout } from '../FormLayout';
 
-export interface FormableProps<Values = any> extends Omit<FormProps, 'form' |"onFinsih" | 'onFinsihFailed'> {
+export interface FormableProps<Values = any> extends Omit<FormProps, 'form' | "onFinsih" | 'onFinsihFailed'> {
     form?: FormStore
     onSubmit?: (values: Values) => void;
     component?: JSXComponent
@@ -53,4 +53,3 @@ export const Form: React.FC<FormableProps> = ({
     );
 };
 
-export default Form;

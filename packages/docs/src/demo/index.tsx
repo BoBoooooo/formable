@@ -62,6 +62,8 @@ const Demo = () => {
                             onClick={() => {
                                 form.updateFieldLayout("user", {
                                     label: "联动 user!!!!!",
+                                    extra: '测试',
+                                    tooltip: <div>123</div>
                                 });
 
                                 form.updateFieldLayout("age", {

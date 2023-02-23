@@ -1,8 +1,11 @@
 import { FormStore } from "@formable/core";
 import type { FormProps, ColProps } from "antd";
+import { ReactNode } from "react";
 
- type FormLabelAlign = 'left' | 'right';
- type RequiredMark = boolean | 'optional';
+export const tuple = <T extends string[]>(...args: T) => args;
+
+export type FormLabelAlign = 'left' | 'right';
+export type RequiredMark = boolean | 'optional';
 
 export type JSXComponent =
   | keyof JSX.IntrinsicElements
@@ -24,3 +27,17 @@ export interface FormLayoutContextProps {
     requiredMark?: RequiredMark;
 }
 
+export interface FormItemStatusContextProps {
+    isFormItemInput?: boolean;
+    status?: ValidateStatus;
+    hasFeedback?: boolean;
+    feedbackIcon?: ReactNode;
+}
+export interface FormItemPrefixContextProps {
+    prefixCls: string;
+    status?: ValidateStatus;
+}
+
+const ValidateStatuses = tuple('success', 'warning', 'error', 'validating', '');
+
+export type ValidateStatus = typeof ValidateStatuses[number];

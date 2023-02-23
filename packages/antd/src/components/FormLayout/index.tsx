@@ -10,15 +10,10 @@ import SizeContext, {
 } from "antd/es/config-provider/SizeContext";
 
 import { FormableProps } from "../Form";
-import { FormLayoutContextProps } from "../../types";
+import { FormContext } from "../../utils/context";
 
 export type FormLayout = "horizontal" | "inline" | "vertical";
 
-
-export const FormContext = React.createContext<FormLayoutContextProps>({
-    labelAlign: 'right',
-    vertical: false,
-});
 export const FormLayout: React.FC<FormableProps> = (props) => {
     const contextSize = React.useContext(SizeContext);
     const contextDisabled = React.useContext(DisabledContext);
@@ -55,8 +50,9 @@ export const FormLayout: React.FC<FormableProps> = (props) => {
 
     const mergedColon = colon;
 
-    const prefixCls = getPrefixCls("form", customizePrefixCls);
-
+    const prefixCls = getPrefixCls("form", customizePrefixCls) || 'ant';
+    console.log('prefixCls',prefixCls);
+    
     const formClassName = classNames(
         prefixCls,
         {

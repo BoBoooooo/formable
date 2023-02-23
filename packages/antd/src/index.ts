@@ -1,2 +1,3 @@
-export { default as Form } from "./components/Form";
-export { default as FormItem } from "./components/FormItem";
+// fork from antd v4 stable version
+export { Form } from "./components/Form";
+export { FormItem } from "./components/FormItem";
