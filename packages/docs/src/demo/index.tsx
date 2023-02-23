@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Field, FormObserver, useForm } from "@formable/react";
-import { Form } from "@formable/antd";
-import { Button, Input, Form as AntdForm } from "antd";
+import { Form, FormItem } from "@formable/antd";
+import { Button, Input} from "antd";
 import 'antd/dist/antd.css';
 
 const Demo = () => {
@@ -18,13 +18,14 @@ const Demo = () => {
             {bool ? "true" : "false"}
             <Form
                 form={form}
+                layout='horizontal'
                 onSubmit={console.log}
                 initialValues={{
                     user: "ou1t",
                 }}>
                 <Field
                     decorator={[
-                        AntdForm.Item,
+                        FormItem,
                         {
                             labelCol: {
                                 span: 4,
@@ -37,7 +38,7 @@ const Demo = () => {
                     <Input />
                 </Field>
                 <Field
-                    decorator={[AntdForm.Item]}
+                    decorator={[FormItem]}
                     label="age"
                     name="age"
                     required

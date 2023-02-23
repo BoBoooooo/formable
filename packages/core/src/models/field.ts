@@ -4,15 +4,13 @@ import { mergeRules } from "../utils/helper";
 import { FormStore } from "./form";
 
 export class FieldStore {
-    @observable name: any;
+    name: any;
 
-    @observable value: any;
+    initialValue: any;
 
-    @observable initialValue: any;
+    rules: any;
 
-    @observable rules: any;
-
-    @observable layout: Record<string, any>;
+    layout: Record<string, any>;
 
     private readonly form: FormStore;
 
@@ -20,10 +18,17 @@ export class FieldStore {
         this.form = form;
         this.name = data.name;
         this.initialValue = data.initialValue;
-        this.value = data.initialValue;
         // 校验 rules required拼接
         this.rules = mergeRules(data.rules , data.required);
-        makeObservable(this);
+        makeObservable(this, {
+            layout: observable,
+            name: observable,
+            rules: observable,
+            value: computed,
+            validate: action,
+            updateLayout: action,
+            initLayout: action
+        });
     }
 
     // @action
@@ -31,12 +36,15 @@ export class FieldStore {
     //     return this.rules.some((rule: any) => !!rule?.required);
     // }
 
-    @action
-    setValue(newValue: any) {
-        this.value = newValue;
+    get value() {
+        return this.form.getFieldValue(this.name);
     }
 
-    @action
+    set value(value) {
+        this.form.setFieldValue(this.name, value);
+    }
+
+
     validate() {
         const validator = new Schema({
             [this.name]: this.rules
@@ -55,22 +63,18 @@ export class FieldStore {
         );
     }
 
-    @action
     reset() {
         this.value = this.initialValue ?? null;
     }
 
-    @action
     clear() {
         this.value = null;
     }
 
-    @action
     initLayout(layout: any) {
         this.layout = layout;
     }
 
-    @action
     updateLayout(newLayout: any) {
         this.layout = {
             ...this.layout,

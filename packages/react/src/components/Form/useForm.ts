@@ -5,18 +5,11 @@ import React from "react";
 // type ExposedAPI = Pick<FormStore, "submit" | "initialize">;
 
 export function useForm(options?: any, initForm?: FormStore): [FormStore] {
-    const formRef = React.useRef<FormStore>();
+    const formRef = React.useRef<FormStore>(initForm);
     if (!formRef.current) {
-        if (initForm) {
-            if (initForm instanceof FormStore === false) 
-                throw new Error('form instance must created by createForm or useForm');
-            else
-                formRef.current = initForm;
-        } else {
-            formRef.current = new FormStore(options);
-            // formRef.current = formStore.getInstance();
-        }
+        formRef.current = new FormStore(options);
     }
-
+    if (formRef.current instanceof FormStore === false)
+        throw new Error("form instance must created by createForm or useForm");
     return [formRef.current];
 }
