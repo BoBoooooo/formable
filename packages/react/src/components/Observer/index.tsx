@@ -9,7 +9,6 @@ export interface IFormObserverProps {
 
 export const FormObserver: React.FC<IFormObserverProps> = observer((props) => {
     const form = useFormInstance();
-    console.log('form',form);
     
     const children =
     typeof props.children === "function"
