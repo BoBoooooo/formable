@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import type { Meta } from 'rc-field-form/lib/interface';
 import { Row ,FormItemProps} from 'antd';
+import { ConfigContext } from 'antd/es/config-provider';
 import {omit} from '../../utils';
 import FormItemLabel from './FormItemLabel';
 import FormItemInput from './FormItemInput';
@@ -35,7 +36,7 @@ export interface ItemHolderProps extends FormItemProps {
 
 export const FormItem=(props: ItemHolderProps) =>{
     const {
-        prefixCls= 'ant-form',
+        prefixCls: customizePrefixCls,
         className,
         style,
         help,
@@ -50,6 +51,9 @@ export const FormItem=(props: ItemHolderProps) =>{
         isRequired,
         ...restProps
     } = props;
+    const { getPrefixCls } = React.useContext(ConfigContext);
+
+    const prefixCls = getPrefixCls('form', customizePrefixCls);
 
     const itemPrefixCls = `${prefixCls}-item`;
     const { requiredMark } = React.useContext(FormContext);
