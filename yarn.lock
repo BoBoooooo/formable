@@ -1318,7 +1318,8 @@
   dependencies:
     "@formable/core" "^0.1.0"
     "@formable/react" "^0.1.0"
-    "antd" "^5.2.2"
+    "antd" "^4.x"
+    "classnames" "^2.3.2"
     "mobx-react-lite" "^3.4.0"
 
 "@formable/core@^0.1.0", "@formable/core@file:/Users/shenxiaohan/Project/Github/formable/packages/core":
@@ -3607,7 +3608,7 @@
   dependencies:
     "@types/lodash" "*"
 
-"@types/lodash@*":
+"@types/lodash@*", "@types/lodash@4.14.191":
   "integrity" "sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ=="
   "resolved" "https://registry.npmmirror.com/@types/lodash/-/lodash-4.14.191.tgz"
   "version" "4.14.191"
@@ -6622,7 +6623,7 @@
   dependencies:
     "@formable/core" "^0.1.0"
     "@formable/react" "^0.1.0"
-    "antd" "^5.2.1"
+    "antd" "^4.x"
 
 "doctrine@^2.1.0":
   "integrity" "sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw=="
@@ -10478,7 +10479,7 @@
   "resolved" "https://registry.npmmirror.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz"
   "version" "4.5.0"
 
-"lodash@^4.17.11", "lodash@^4.17.14", "lodash@^4.17.15", "lodash@^4.17.19", "lodash@^4.17.20", "lodash@^4.17.21", "lodash@^4.7.0":
+"lodash@^4.17.11", "lodash@^4.17.14", "lodash@^4.17.15", "lodash@^4.17.19", "lodash@^4.17.20", "lodash@^4.17.21", "lodash@^4.7.0", "lodash@4.17.21":
   "integrity" "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
   "resolved" "https://registry.npmmirror.com/lodash/-/lodash-4.17.21.tgz"
   "version" "4.17.21"

@@ -26,16 +26,12 @@ const Demo = () => {
                 <Field
                     decorator={[
                         FormItem,
-                        {
-                            labelCol: {
-                                span: 4,
-                            },
-                        },
                     ]}
+                    required
                     label={`user${bool ? "外部更新" : "初始"}`}
                     name="user"
                     initialValue="in">
-                    <Input />
+                    <Input placeholder="请输入xxx" onChange={(e)=> console.log('input-change', e)} onBlur={console.log} />
                 </Field>
                 <Field
                     decorator={[FormItem]}

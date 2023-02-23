@@ -8,6 +8,7 @@ import * as React from 'react';
 import type { Meta } from 'rc-field-form/lib/interface';
 import { Row ,FormItemProps} from 'antd';
 import { ConfigContext } from 'antd/es/config-provider';
+import { useFieldStatus } from '@formable/react';
 import {omit} from '../../utils';
 import FormItemLabel from './FormItemLabel';
 import FormItemInput from './FormItemInput';
@@ -22,7 +23,7 @@ const iconMap = {
     validating: LoadingOutlined,
 };
 
-export interface ItemHolderProps extends FormItemProps {
+interface ItemHolderProps extends FormItemProps {
     prefixCls: string;
     className?: string;
     style?: React.CSSProperties;
@@ -34,34 +35,37 @@ export interface ItemHolderProps extends FormItemProps {
     isRequired?: boolean;
 }
 
-export const FormItem=(props: ItemHolderProps) =>{
+export const FormItem=(props: FormItemProps) =>{
     const {
         prefixCls: customizePrefixCls,
         className,
         style,
         help,
-        errors = [],
-        warnings = [],
         validateStatus,
-        meta = {},
         hasFeedback,
         hidden,
         children,
         fieldId,
-        isRequired,
+        // TODO: 待处理
         ...restProps
     } = props;
     const { getPrefixCls } = React.useContext(ConfigContext);
 
     const prefixCls = getPrefixCls('form', customizePrefixCls);
-
-    const itemPrefixCls = `${prefixCls}-item`;
+    // ======================== INJECT FIELD STORE STATUS ========================
+    const { errors , warnings, required: isRequired } =  useFieldStatus();
     const { requiredMark } = React.useContext(FormContext);
+    const itemPrefixCls = `${prefixCls}-item`;
 
     // ======================== Margin ========================
     const itemRef = React.useRef<HTMLDivElement>(null);
-    const debounceErrors = useDebounce(errors);
-    const debounceWarnings = useDebounce(warnings);
+    const debounceErrors = useDebounce(errors?.map(e=> e?.message));
+    const debounceWarnings = useDebounce(warnings?.map(e=> e?.message));
+    // TODO: 需要记录到fieldStore
+    const meta = {
+        touched: false,
+        validating: false,
+    };
     const hasHelp = help !== undefined && help !== null;
     const hasError = !!(hasHelp || errors.length || warnings.length);
     const [marginBottom, setMarginBottom] = React.useState<number | null>(null);

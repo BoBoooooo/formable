@@ -1,10 +1,12 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useMemo } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo } from "react";
+import { FieldProvider } from "../../context/field-instance";
 import { useFormInstance } from "../../context/form-instance";
-import { isValidComponent } from "../../utils/helper";
+import { isValidComponent, noop } from "../../utils/helper";
 import { useDeepCompareEffect } from "../../utils/useDeepCompareEffect";
 
 type IFieldProps = Partial<{
+    display: 'editable' | 'disabled' | 'preview';
     initialValue: any;
     name: string;
     preserve: boolean;
@@ -17,6 +19,7 @@ type IFieldProps = Partial<{
     decorator: [node: any, props?: any];
 }>;
 
+
 export const Field: React.FC<IFieldProps> = observer(
     ({
         preserve,
@@ -25,6 +28,7 @@ export const Field: React.FC<IFieldProps> = observer(
         label,
         decorator,
         children,
+        display,
         valuePropName = "value",
         trigger = "onChange",
         validateTrigger = 'onChange',
@@ -32,7 +36,10 @@ export const Field: React.FC<IFieldProps> = observer(
         rules
     }) => {
         const form = useFormInstance();
-        const fieldStore = form.registerField(name, { initialValue, rules, required});
+        const fieldStore = form.registerField(name, { initialValue, rules, required, display });
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const mergeDisplay = useMemo(() => form.display || fieldStore?.display , [form.display, fieldStore?.display]);
 
         useDeepCompareEffect(() => {
             // 重置field.layout
@@ -50,6 +57,23 @@ export const Field: React.FC<IFieldProps> = observer(
             // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [name, preserve]);
 
+        /**
+         * 1. collect field value to formStore 
+         * 2. triggerValidate
+         */
+        const collectValue =  useCallback(
+            (e: any, triggerFlag: typeof trigger, componentProps) => {
+                trigger === triggerFlag && form.setFieldValue(name, e?.target?.value ?? e);
+                componentProps?.[triggerFlag]?.(e);
+                if(validateTrigger === triggerFlag && (form.rules[name])){
+                    form.validateFields(name).catch(noop);
+                }
+            },
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+            [name, trigger, validateTrigger],
+        );
+        
+
         const chlidrenRender = useMemo(() => {
             // 没有name则直接return
             if (!name) {
@@ -65,19 +89,16 @@ export const Field: React.FC<IFieldProps> = observer(
                  * </Field>
                  */
 
-                return React.isValidElement(children)
-                    ? React.cloneElement(children, {
+                if(React.isValidElement(children)){
+                    const { props: componentProps } = children as any;
+                    return  React.cloneElement(children, {
                         [valuePropName]: fieldStore.value,
-                        [trigger]: (e: any) => {
-                            form.setFieldValue(name, e?.target?.value ?? e);
-                            if(validateTrigger === trigger && (fieldStore.rules?.length)){
-                                fieldStore.validate();
-                            }
-                            // TODO: 触发原生控件onChange
-                          
-                        },
-                    })
-                    : children;
+                        onChange: (e: any) => collectValue(e, 'onChange', componentProps),
+                        onBlur: (e: any)=> collectValue(e, 'onBlur', componentProps)
+                    } as any);
+                }
+                
+                return children;
             }
             return null;
             // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,16 +106,23 @@ export const Field: React.FC<IFieldProps> = observer(
 
         
         return (
-            isValidComponent(decorator?.[0]) ?  React.createElement(decorator?.[0] as any, {
-                label,
-                ...fieldStore.layout,
-            }, chlidrenRender): (
-                <>
-                    {label}  
-                    {/* 输入控件 */}
-                    {chlidrenRender}
-                </>
-            )
+            <FieldProvider value={fieldStore}>
+                {
+                    isValidComponent(decorator?.[0]) ?  React.createElement(decorator?.[0] as any, {
+                        label,
+                        // inject decorator props
+                        ...fieldStore.layout,
+                    }, chlidrenRender): (
+                        <>
+                            <label>   
+                                {label}
+                            </label>
+                            {/* controller component */}
+                            {chlidrenRender}
+                        </>
+                    )
+                }
+            </FieldProvider>
         );
     }
 );

@@ -1,16 +1,28 @@
 import { makeObservable, observable, action, computed, toJS } from "mobx";
-import Schema from "async-validator";
-import { mergeRules } from "../utils/helper";
+import { mergeRules, setObserverable } from "../utils/helper";
 import { FormStore } from "./form";
 
+ type ValidateStatus =
+  | "success"
+  | "warning"
+  | "error"
+  | "validating"
+  | "";
+
 export class FieldStore {
-    name: any;
+    name: string;
 
     initialValue: any;
 
-    rules: any;
+    touched: boolean;
+
+    validating: boolean;
+
+    display: 'editable' | 'disabled' | 'preview' = 'editable'; 
 
     layout: Record<string, any>;
+
+    validateStatus: ValidateStatus;
 
     private readonly form: FormStore;
 
@@ -18,23 +30,27 @@ export class FieldStore {
         this.form = form;
         this.name = data.name;
         this.initialValue = data.initialValue;
-        // 校验 rules required拼接
-        this.rules = mergeRules(data.rules , data.required);
+        // 注册至form
+        setObserverable(this.form.rules, this.name, mergeRules(data.rules , data.required));
+
         makeObservable(this, {
             layout: observable,
             name: observable,
-            rules: observable,
             value: computed,
-            validate: action,
+            required: computed,
             updateLayout: action,
             initLayout: action
         });
     }
 
-    // @action
-    // get required() {
-    //     return this.rules.some((rule: any) => !!rule?.required);
-    // }
+    get required() {
+        return this.rules.some((desc) => !!desc?.required);
+    }
+
+    get rules(){
+        const selfRule = this.form.rules[this.name];
+        return Array.isArray(selfRule) ? selfRule : [selfRule]; 
+    }
 
     get value() {
         return this.form.getFieldValue(this.name);
@@ -44,23 +60,19 @@ export class FieldStore {
         this.form.setFieldValue(this.name, value);
     }
 
+    get errors() {
+        const selfErrors = this.form.errors[this.name];
+        return Array.isArray(selfErrors) ? selfErrors : [selfErrors];
+    }
 
-    validate() {
-        const validator = new Schema({
-            [this.name]: this.rules
-        });
-        validator.validate(
-            {
-                [this.name]: toJS(this.value),
-            },
-            { firstFields: true },
-            (errors, fields) => {
-                if (errors) {
-                    // TODO: 收集到错误堆栈
-                    console.log("错误列表", errors);
-                }
-            }
-        );
+    get warnings() {
+        const selfWarnings = this.form.warnings[this.name];
+        return Array.isArray(selfWarnings) ? selfWarnings : [selfWarnings];
+    }
+    
+    get successes() {
+        const selfSuccesses = this.form.successes[this.name];
+        return Array.isArray(selfSuccesses) ? selfSuccesses : [selfSuccesses];
     }
 
     reset() {

@@ -9,3 +9,5 @@ export const isSystemType = (c: any) =>
 export const isValidComponent = (target: any) =>
     target && (typeof target === 'object' || typeof target === 'function');
     
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export const noop = ()=> {};

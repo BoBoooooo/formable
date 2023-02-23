@@ -28,7 +28,7 @@ export const Form: React.FC<FormableProps> = ({
     useEffect(() => {
         // onSubmit同步
         form.syncInitialize({
-            onSubmit
+            onSubmit,
         });
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [onSubmit]);

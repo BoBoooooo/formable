@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { FormStore } from '@formable/core';
 
 export const FormContext = React.createContext<FormStore>(null);
-export const FormProvider = FormContext.Provider;
+export const FormGlobalProvider = FormContext.Provider;
 
 // hook
 export const useFormInstance = () => {

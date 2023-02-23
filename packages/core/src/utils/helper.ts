@@ -1,8 +1,9 @@
 import * as mobx from "mobx";
+import { IRule } from "../types";
 
-export const mergeRules = (rules: any, required: boolean) => {
+export const mergeRules = (rules: IRule, required: boolean) => {
     // 校验 rules required拼接
-    const r = Array.isArray(rules) ? rules : [];
+    const r = Array.isArray(rules) ? rules : []; 
     const requiredProp = required;
     if (requiredProp) {
         r.push({
@@ -12,6 +13,7 @@ export const mergeRules = (rules: any, required: boolean) => {
     return r;
 };
 
+// object add observerable key 
 export const setObserverable = (
     target: unknown,
     key: string,

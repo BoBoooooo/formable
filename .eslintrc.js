@@ -89,6 +89,7 @@ module.exports = {
         ],
         'import/first': 'off',
         'no-unused-vars': 'off',
+        'no-underscore-dangle': 'off',
         'no-use-before-define': 'off',
         'no-undef': 'off',
         'no-useless-constructor': 'off',
@@ -174,7 +175,6 @@ module.exports = {
          */
         'no-param-reassign': 'warn',
         'no-shadow': 'warn',
-        'no-underscore-dangle': 'warn',
         '@typescript-eslint/no-unused-vars': 'warn',
     }
 };
