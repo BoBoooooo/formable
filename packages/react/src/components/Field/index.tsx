@@ -17,6 +17,7 @@ type IFieldProps = Partial<{
     required: boolean;
     validateTrigger:  string | string[];
     decorator: [node: any, props?: any];
+    getValueFromEvent: (...args: any[]) => any	
 }>;
 
 
@@ -33,7 +34,8 @@ export const Field: React.FC<IFieldProps> = observer(
         trigger = "onChange",
         validateTrigger = 'onChange',
         required,
-        rules
+        rules,
+        getValueFromEvent
     }) => {
         const form = useFormInstance();
         const fieldStore = form.registerField(name, { initialValue, rules, required, display });
@@ -63,14 +65,20 @@ export const Field: React.FC<IFieldProps> = observer(
          */
         const collectValue =  useCallback(
             (e: any, triggerFlag: typeof trigger, componentProps) => {
-                trigger === triggerFlag && form.setFieldValue(name, e?.target?.value ?? e);
+                // collect value
+                if(trigger === triggerFlag){
+                    const v = getValueFromEvent?.(e) ?? e?.target?.checked ?? e?.target?.value ?? e;
+                    form.setFieldValue(name, v);
+                }
+                // origin props 
                 componentProps?.[triggerFlag]?.(e);
+                // trigger validate
                 if(validateTrigger === triggerFlag && (form.rules[name])){
                     form.validateFields(name).catch(noop);
                 }
             },
             // eslint-disable-next-line react-hooks/exhaustive-deps
-            [name, trigger, validateTrigger],
+            [name, trigger, validateTrigger, getValueFromEvent],
         );
         
 
