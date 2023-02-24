@@ -70,7 +70,7 @@ export const Field: React.FC<IFieldProps> = observer(
                     const v = getValueFromEvent?.(e) ?? e?.target?.checked ?? e?.target?.value ?? e;
                     form.setFieldValue(name, v);
                 }
-                // origin props 
+                // trigger origin event 
                 componentProps?.[triggerFlag]?.(e);
                 // trigger validate
                 if(validateTrigger === triggerFlag && (form.rules[name])){
@@ -82,7 +82,7 @@ export const Field: React.FC<IFieldProps> = observer(
         );
         
 
-        const chlidrenRender = useMemo(() => {
+        const controlledChildren = useMemo(() => {
             // 没有name则直接return
             if (!name) {
                 return children;
@@ -96,7 +96,7 @@ export const Field: React.FC<IFieldProps> = observer(
                  *      <Input />
                  * </Field>
                  */
-
+                // TODO: getOnlyChild 
                 if(React.isValidElement(children)){
                     const { props: componentProps } = children as any;
                     return  React.cloneElement(children, {
@@ -116,17 +116,22 @@ export const Field: React.FC<IFieldProps> = observer(
         return (
             <FieldProvider value={fieldStore}>
                 {
+                    // render decorator
                     isValidComponent(decorator?.[0]) ?  React.createElement(decorator?.[0] as any, {
                         label,
                         // inject decorator props
                         ...fieldStore.layout,
-                    }, chlidrenRender): (
+                    }, controlledChildren): (
+                        // default render
                         <>
-                            <label>   
-                                {label}
-                            </label>
-                            {/* controller component */}
-                            {chlidrenRender}
+                            {/* label */}
+                            {label && (
+                                <label>   
+                                    {label}
+                                </label>
+                            )}
+                            {/* component */}
+                            {controlledChildren}
                         </>
                     )
                 }
