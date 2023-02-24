@@ -5,7 +5,7 @@
   "author": "BoBo<boboooooo159@gmail.com>",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "module": "es/index.js",
+  "module": "esm/index.js",
   "scripts": {
     "precommit": "lint-staged",
     "lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --color --fix",
@@ -17,7 +17,7 @@
   },
   "files": [
     "lib",
-    "es"
+    "esm"
 ],
   "license": "MIT",
   "dependencies": {

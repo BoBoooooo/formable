@@ -60,7 +60,7 @@ export class FormStore {
         return null;
     }
 
-    removeField(name: string, preserve: boolean = true) {
+    removeField(name: string, preserve = true) {
         preserve && this.fieldMap.delete(name);
     }
 

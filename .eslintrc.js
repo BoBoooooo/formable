@@ -170,9 +170,6 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-inferrable-types': 'off',
         '@typescript-eslint/no-use-before-define': ['error'],
-        /**
-         *  过滤掉一些底层写法不得不依赖的
-         */
         'no-param-reassign': 'warn',
         'no-shadow': 'warn',
         '@typescript-eslint/no-unused-vars': 'warn',
