@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { Fragment, useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { FieldProvider } from "../../context/field-instance";
 import { useFormInstance } from "../../context/form-instance";
 import { isValidComponent, noop } from "../../utils/helper";
@@ -67,7 +67,7 @@ export const Field: React.FC<IFieldProps> = observer(
             (e: any, triggerFlag: typeof trigger, componentProps) => {
                 // collect value
                 if(trigger === triggerFlag){
-                    const v = getValueFromEvent?.(e) ?? e?.target?.checked ?? e?.target?.value ?? e;
+                    const v = getValueFromEvent?.(e) ?? e?.target?.value ?? e?.target?.checked  ?? e;
                     form.setFieldValue(name, v);
                 }
                 // trigger origin event 

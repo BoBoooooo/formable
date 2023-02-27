@@ -1,6 +1,7 @@
-import { makeObservable, observable, action, computed, toJS } from "mobx";
+import { makeObservable, observable, action, toJS, reaction } from "mobx";
 import Schema, { ValidateOption } from "async-validator";
 import pick from "lodash/pick";
+import { pickBy } from "lodash";
 import { setObserverable } from "../utils/helper";
 import { FieldStore } from "./field";
 import { IRules } from "../types";
@@ -60,8 +61,12 @@ export class FormStore {
         return null;
     }
 
-    removeField(name: string, preserve = true) {
-        preserve && this.fieldMap.delete(name);
+    removeField(name: string, preserve = false) {
+        // removeField
+        this.fieldMap.delete(name);
+        if(!preserve){
+            delete this.values[name];
+        }
     }
 
     setFieldValues(values: any) {
@@ -83,7 +88,10 @@ export class FormStore {
         return toJS(this.values[name]);
     }
 
-    getFieldValues() {
+    getFieldValues(names?: string[]) {
+        if(names){
+            return toJS(pickBy(this.values, names));
+        }
         return toJS(this.values);
     }
 
@@ -121,6 +129,43 @@ export class FormStore {
             );
         });
     }
+
+    /**
+     * 注册联动
+     */
+    registerListener(watchFields: string[], condition: any, action: any){
+        reaction(
+            // watch multiple fields
+            () => { 
+                let orCondition: boolean ;
+                // FIXME: any other option ?
+                Object.keys(this.values).forEach(k=>{
+                    if(watchFields.includes(k)){
+                        orCondition = orCondition || this.values[k];
+                    }
+                });
+                return orCondition;
+            },
+            () => {
+                console.log('triggerAction');
+                // trigger action
+                if(typeof condition === 'function'){
+                    const isValid = condition(this);
+                    if(isValid){
+                        if(typeof action === 'function'){
+                            return action(this);
+                        }
+                        throw new Error("[Formable]: action should be typeof `function`");
+                    }
+                }
+                throw new Error("[Formable]: condition should be typeof `function`");
+                
+            },
+            // otherOptions
+            {},
+        );
+    }
+
 
     // 回调onSubmit事件
     submit() {
