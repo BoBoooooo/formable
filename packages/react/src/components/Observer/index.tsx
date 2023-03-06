@@ -4,7 +4,7 @@ import { FormStore } from "@formable/core";
 import { useFormInstance } from "../../context/form-instance";
 
 export interface IFormObserverProps {
-    children?: (form: FormStore) => React.ReactChild;
+    children?: (form: FormStore['values']) => React.ReactChild;
 }
 
 export const FormObserver: React.FC<IFormObserverProps> = observer((props) => {
@@ -12,7 +12,7 @@ export const FormObserver: React.FC<IFormObserverProps> = observer((props) => {
     
     const children =
     typeof props.children === "function"
-        ? props.children(form)
+        ? props.children(form.values)
         : null;
     return <>{children}</>;
 });

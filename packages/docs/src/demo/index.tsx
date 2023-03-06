@@ -52,8 +52,8 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
                     <Switch />
                 </Field>
                 <FormObserver>
-                    {(form) => {
-                        return JSON.stringify(form.values) || "无";
+                    {(v) => {
+                        return JSON.stringify(v) || "无";
                     }}
                 </FormObserver>
                 <Field
@@ -73,8 +73,8 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
                     ]} />
                 </Field>
                 <FormObserver>
-                    {(form) => {
-                        return form.values.radio === 1 ? (
+                    {(v) => {
+                        return v.radio === 1 ? (
                             <Field
                                 preserve
                                 decorator={[FormItem]}
