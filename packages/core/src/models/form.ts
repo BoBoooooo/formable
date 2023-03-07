@@ -11,7 +11,7 @@ export class FormStore {
 
     @observable display: "editable" | "disabled" | "preview";
 
-    @observable fieldMap = new Map<string, FieldStore>();
+    @observable fieldMap: Record<string, FieldStore> = {};
 
     @observable initialValues: any;
 
@@ -24,12 +24,15 @@ export class FormStore {
     @observable successes: IRules = {};
 
     @observable rules: IRules = {};
-
+    
     onSubmit: any;
+    
+    components: Record<string,React.FunctionComponent<any> | React.ComponentClass<any, any>>;
 
     constructor(options?: any) {
         this.initialValues = options?.initialValues;
         this.values = this.initialValues || {};
+        this.components = options?.components;
         makeObservable(this);
     }
 
@@ -40,7 +43,7 @@ export class FormStore {
 
     registerField(name: string, initialData: any) {
         if (name) {
-            let field = this.fieldMap.get(name);
+            let field = this.fieldMap[name];
             if (field == null) {
                 console.log("--registerField--", name, initialData);
                 // 优先读取全局表单默认值
@@ -51,7 +54,7 @@ export class FormStore {
                     ...initialData,
                     initialValue: intialValue,
                 });
-                this.fieldMap.set(name, field);
+                this.fieldMap[name] = field;
 
                 // 同步初始值至form.values
                 this.setFieldValue(name, intialValue);
@@ -63,7 +66,7 @@ export class FormStore {
 
     removeField(name: string, preserve = false) {
         // removeField
-        this.fieldMap.delete(name);
+        delete this.fieldMap.name;
         if(!preserve){
             delete this.values[name];
         }
@@ -78,7 +81,7 @@ export class FormStore {
 
     @action
     setFieldValue(name: string, value: any) {
-        const field = this.fieldMap.get(name);
+        const field = this.fieldMap[name];
         if (field) {
             setObserverable(this.values, name, value);
         }
@@ -174,16 +177,16 @@ export class FormStore {
 
     @action
     clear(): void {
-        this.fieldMap.forEach((field: FieldStore) => field.clear());
+        Object.values(this.fieldMap).forEach((field: FieldStore) => field.clear());
     }
 
     @action
     reset(): void {
-        this.fieldMap.forEach((field: FieldStore) => field.reset());
+        Object.values(this.fieldMap).forEach((field: FieldStore) => field.reset());
     }
 
     updateFieldLayout(name: string, newLayout: Record<string, any>) {
-        this.fieldMap.get(name).updateLayout(newLayout);
+        this.fieldMap[name]?.updateLayout(newLayout);
     }
 
     getInstance() {

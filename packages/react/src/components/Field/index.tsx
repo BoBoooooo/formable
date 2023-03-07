@@ -6,6 +6,8 @@ import { isValidComponent, noop } from "../../utils/helper";
 import { useDeepCompareEffect } from "../../utils/useDeepCompareEffect";
 
 type IFieldProps = Partial<{
+    component: string;
+    componentProps: any;
     display: 'editable' | 'disabled' | 'preview';
     initialValue: any;
     name: string;
@@ -17,12 +19,14 @@ type IFieldProps = Partial<{
     required: boolean;
     validateTrigger:  string | string[];
     decorator: [node: any, props?: any];
-    getValueFromEvent: (...args: any[]) => any	
+    getValueFromEvent: (...args: any[]) => any;
 }>;
 
 
 export const Field: React.FC<IFieldProps> = observer(
     ({
+        component,
+        componentProps,
         preserve,
         name,
         initialValue,
@@ -87,8 +91,9 @@ export const Field: React.FC<IFieldProps> = observer(
             if (!name) {
                 return children;
             }
+            const controlledComponent = children || form.components?.[component];
             // 自定义组件
-            if (children) {
+            if (controlledComponent) {
                 /**
                  * 不支持下述写法
                  * <Field>
@@ -97,16 +102,16 @@ export const Field: React.FC<IFieldProps> = observer(
                  * </Field>
                  */
                 // TODO: getOnlyChild 
-                if(React.isValidElement(children)){
-                    const { props: componentProps } = children as any;
-                    return  React.cloneElement(children, {
+                if(React.isValidElement(controlledComponent)){
+                    const { props } = children as any;
+                    return  React.cloneElement(controlledComponent, {
                         [valuePropName]: fieldStore.value,
-                        onChange: (e: any) => collectValue(e, 'onChange', componentProps),
-                        onBlur: (e: any)=> collectValue(e, 'onBlur', componentProps)
+                        onChange: (e: any) => collectValue(e, 'onChange', props),
+                        onBlur: (e: any)=> collectValue(e, 'onBlur', props)
                     } as any);
                 }
-                
-                return children;
+
+                return React.createElement(controlledComponent as any, componentProps);
             }
             return null;
             // eslint-disable-next-line react-hooks/exhaustive-deps
