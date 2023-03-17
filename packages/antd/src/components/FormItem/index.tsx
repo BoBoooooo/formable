@@ -5,7 +5,6 @@ import LoadingOutlined from '@ant-design/icons/LoadingOutlined';
 import useLayoutEffect from 'rc-util/lib/hooks/useLayoutEffect';
 import classNames from 'classnames';
 import * as React from 'react';
-import type { Meta } from 'rc-field-form/lib/interface';
 import { Row, FormItemProps } from 'antd';
 import { ConfigContext } from 'antd/es/config-provider';
 import { useFieldStatus } from '@formable/react';
@@ -22,19 +21,6 @@ const iconMap = {
   error: CloseCircleFilled,
   validating: LoadingOutlined,
 };
-
-interface ItemHolderProps extends FormItemProps {
-  prefixCls: string;
-  className?: string;
-  style?: React.CSSProperties;
-  errors: React.ReactNode[];
-  warnings: React.ReactNode[];
-  meta: Meta;
-  children?: React.ReactNode;
-  fieldId?: string;
-  isRequired?: boolean;
-}
-
 export const FormItem = (props: FormItemProps) => {
   const {
     prefixCls: customizePrefixCls,
