@@ -1,21 +1,20 @@
-import React from "react";
-import { FormLayoutContextProps, FormItemStatusContextProps } from "../types";
+import React from 'react';
+import { FormLayoutContextProps, FormItemStatusContextProps } from '../types';
 
 export interface FormItemPrefixContextProps {
-    prefixCls: string;
-    status?: ValidateStatus;
+  prefixCls: string;
+  status?: ValidateStatus;
 }
-  
+
 export const FormItemPrefixContext = React.createContext<FormItemPrefixContextProps>({
-    prefixCls: '',
+  prefixCls: '',
 });
 
-  
 export const tuple = <T extends string[]>(...args: T) => args;
 
 export const FormContext = React.createContext<FormLayoutContextProps>({
-    labelAlign: 'right',
-    vertical: false,
+  labelAlign: 'right',
+  vertical: false,
 });
 
 export { FormLayoutContextProps };
@@ -23,4 +22,4 @@ export const FormItemInputContext = React.createContext<FormItemStatusContextPro
 
 const ValidateStatuses = tuple('success', 'warning', 'error', 'validating', '');
 
-export type ValidateStatus = typeof ValidateStatuses[number];
+export type ValidateStatus = (typeof ValidateStatuses)[number];

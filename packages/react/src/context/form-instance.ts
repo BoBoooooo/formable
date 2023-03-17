@@ -6,5 +6,5 @@ export const FormGlobalProvider = FormContext.Provider;
 
 // hook
 export const useFormInstance = () => {
-    return useContext(FormContext);
+  return useContext(FormContext);
 };

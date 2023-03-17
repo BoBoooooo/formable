@@ -1,96 +1,91 @@
-import { makeObservable, observable, action, computed } from "mobx";
-import { mergeRules, setObserverable } from "../utils/helper";
-import { FormStore } from "./form";
+import { makeObservable, observable, action, computed } from 'mobx';
+import { mergeRules, setObserverable } from '../utils/helper';
+import { FormStore } from './form';
 
- type ValidateStatus =
-  | "success"
-  | "warning"
-  | "error"
-  | "validating"
-  | "";
+type ValidateStatus = 'success' | 'warning' | 'error' | 'validating' | '';
 
 export class FieldStore {
-    name: string;
+  name: string;
 
-    initialValue: any;
+  initialValue: any;
 
-    touched: boolean;
+  touched: boolean;
 
-    validating: boolean;
+  validating: boolean;
 
-    display: 'editable' | 'disabled' | 'preview' = 'editable'; 
+  display: 'editable' | 'disabled' | 'preview' = 'editable';
 
-    layout: Record<string, any>;
+  layout: Record<string, any>;
 
-    validateStatus: ValidateStatus;
+  validateStatus: ValidateStatus;
 
-    private readonly form: FormStore;
+  private readonly form: FormStore;
 
-    constructor(form: FormStore, data: any) {
-        this.form = form;
-        this.name = data.name;
-        this.initialValue = data.initialValue;
-        // 注册至form
-        setObserverable(this.form.rules, this.name, mergeRules(data.rules , data.required));
+  constructor(form: FormStore, data: any) {
+    this.form = form;
+    this.name = data.name;
+    this.initialValue = data.initialValue;
+    // 注册至form
+    setObserverable(this.form.rules, this.name, mergeRules(data.rules, data.required));
 
-        makeObservable(this, {
-            layout: observable,
-            name: observable,
-            value: computed,
-            required: computed,
-            updateLayout: action,
-            initLayout: action
-        });
-    }
+    makeObservable(this, {
+      layout: observable,
+      name: observable,
+      value: computed,
+      required: computed,
+      updateLayout: action,
+      initLayout: action,
+    });
+  }
 
-    get required() {
-        return this.rules.some((desc) => !!desc?.required);
-    }
+  get required() {
+    return this.rules.some((desc) => !!desc?.required);
+  }
 
-    get rules(){
-        const selfRule = this.form.rules[this.name];
-        return Array.isArray(selfRule) ? selfRule : [selfRule]; 
-    }
+  get rules() {
+    const selfRule = this.form.rules[this.name];
+    return Array.isArray(selfRule) ? selfRule : [selfRule];
+  }
 
-    get value() {
-        return this.form.getFieldValue(this.name);
-    }
+  get value() {
+    return this.form.getFieldValue(this.name);
+  }
 
-    set value(value) {
-        this.form.setFieldValue(this.name, value);
-    }
+  set value(value) {
+    this.form.setFieldValue(this.name, value);
+  }
 
-    get errors() {
-        const selfErrors = this.form.errors[this.name];
-        return Array.isArray(selfErrors) ? selfErrors : [selfErrors];
-    }
+  get errors() {
+    const selfErrors = this.form.errors[this.name];
+    return Array.isArray(selfErrors) ? selfErrors : [selfErrors];
+  }
 
-    get warnings() {
-        const selfWarnings = this.form.warnings[this.name];
-        return Array.isArray(selfWarnings) ? selfWarnings : [selfWarnings];
-    }
-    
-    get successes() {
-        const selfSuccesses = this.form.successes[this.name];
-        return Array.isArray(selfSuccesses) ? selfSuccesses : [selfSuccesses];
-    }
+  get warnings() {
+    const selfWarnings = this.form.warnings[this.name];
+    return Array.isArray(selfWarnings) ? selfWarnings : [selfWarnings];
+  }
 
-    reset() {
-        this.value = this.initialValue ?? null;
-    }
+  get successes() {
+    const selfSuccesses = this.form.successes[this.name];
+    return Array.isArray(selfSuccesses) ? selfSuccesses : [selfSuccesses];
+  }
 
-    clear() {
-        this.value = null;
-    }
+  reset() {
+    this.value = this.initialValue ?? null;
+  }
 
-    initLayout(layout: any) {
-        this.layout = layout;
-    }
+  clear() {
+    this.value = null;
+  }
 
-    updateLayout(newLayout: any) {
-        this.layout = {
-            ...this.layout,
-            ...newLayout,
-        };
-    }
+  initLayout(layout: any) {
+    this.layout = layout;
+  }
+
+  updateLayout(newLayout: any) {
+    this.layout = {
+      ...this.layout,
+      ...newLayout,
+    };
+  }
 }

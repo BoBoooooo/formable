@@ -1,22 +1,15 @@
 {
-  "packages": [
-    "packages/*"
-  ],
+  "packages": ["packages/*"],
   "npmClient": "yarn",
   "useWorkspaces": true,
   "version": "0.1.0",
-   "command": {
+  "command": {
     "version": {
       "conventionalCommits": true
     },
     "publish": {
       "conventionalCommits": true,
-      "ignoreChanges": [
-        "*.md",
-        "examples/**",
-        "test/**",
-        "node_modules"
-      ],
+      "ignoreChanges": ["*.md", "examples/**", "test/**", "node_modules"],
       "message": "build(release): 😊 publish %s"
     }
   },

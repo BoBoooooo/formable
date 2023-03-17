@@ -3,6 +3,6 @@
   "exclude": ["./src/__tests__/*", "./esm/*", "./lib/*"],
   "include": ["src/**/*"],
   "compilerOptions": {
-    "outDir": "./lib",
-  },
+    "outDir": "./lib"
+  }
 }

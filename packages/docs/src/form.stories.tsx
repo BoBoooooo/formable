@@ -1,11 +1,10 @@
-import React from "react";
-import Demo from "./demo";
+import React from 'react';
+import Demo from './demo';
 
 export default {
-    title: 'Form',
+  title: 'Form',
 };
 
-
 export const Basic = () => {
-    return <Demo />;
+  return <Demo />;
 };
