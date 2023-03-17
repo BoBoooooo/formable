@@ -1,6 +1,6 @@
 module.exports = {
     parser: '@typescript-eslint/parser',
-    plugins: ['@typescript-eslint', 'react-hooks'],
+    plugins: ['@typescript-eslint', 'react-hooks', 'prettier'],
     parserOptions: {
         requireConfigFile: false,
         ecmaVersion: 2020, // Allows for the parsing of modern ECMAScript features

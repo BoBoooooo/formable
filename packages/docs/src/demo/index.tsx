@@ -150,14 +150,18 @@ const Layout = () => {
     });
 
     form.registerListener(
-        ["radio", "user"],
+        ["user"],
         () => {
-            return true;
+            return form.getFieldValue("user") === "123";
         },
         () => {
-            form.setFieldValue("age", 20);
+            form.setFieldValue("radio", 0);
         }
     );
+
+    form.registerListener(["radio"], "radio.value === 0", () => {
+        form.setFieldValue("age", 66);
+    });
     return (
         <Row gutter={20}>
             <Col span={12}>

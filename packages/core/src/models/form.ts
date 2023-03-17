@@ -1,10 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { makeObservable, observable, action, toJS, reaction } from "mobx";
 import Schema, { ValidateOption } from "async-validator";
 import pick from "lodash/pick";
-import { pickBy } from "lodash";
+import { compile } from "expression-eval";
 import { setObserverable } from "../utils/helper";
 import { FieldStore } from "./field";
-import { IRules } from "../types";
+import { ICondition, IRules } from "../types";
 
 export class FormStore {
     @observable name: string;
@@ -24,10 +25,10 @@ export class FormStore {
     @observable successes: IRules = {};
 
     @observable rules: IRules = {};
-    
+
     onSubmit: any;
-    
-    components: Record<string,React.FunctionComponent<any> | React.ComponentClass<any, any>>;
+
+    components: Record<string, React.FunctionComponent<any> | React.ComponentClass<any, any>>;
 
     constructor(options?: any) {
         this.initialValues = options?.initialValues;
@@ -48,7 +49,7 @@ export class FormStore {
                 console.log("--registerField--", name, initialData);
                 // 优先读取全局表单默认值
                 const intialValue =
-          this.initialValues?.[name] ?? initialData?.initialValue;
+                    this.initialValues?.[name] ?? initialData?.initialValue;
                 field = new FieldStore(this, {
                     name,
                     ...initialData,
@@ -67,7 +68,7 @@ export class FormStore {
     removeField(name: string, preserve = false) {
         // removeField
         delete this.fieldMap.name;
-        if(!preserve){
+        if (!preserve) {
             delete this.values[name];
         }
     }
@@ -92,8 +93,8 @@ export class FormStore {
     }
 
     getFieldValues(names?: string[]) {
-        if(names){
-            return toJS(pickBy(this.values, names));
+        if (names) {
+            return toJS(pick(this.values, names));
         }
         return toJS(this.values);
     }
@@ -134,41 +135,42 @@ export class FormStore {
     }
 
     /**
-     * 注册联动
-     */
-    registerListener(watchFields: string[], condition: any, action: any){
+   * 注册联动
+   */
+    registerListener(watchFields: string[], expression: ICondition, effect: any) {
         reaction(
             // watch multiple fields
-            () => { 
-                let orCondition: boolean ;
+            () => {
+                let orCondition: boolean;
                 // FIXME: any other option ?
-                Object.keys(this.values).forEach(k=>{
-                    if(watchFields.includes(k)){
+                Object.keys(this.values).forEach((k) => {
+                    if (watchFields.includes(k)) {
                         orCondition = orCondition || this.values[k];
                     }
                 });
                 return orCondition;
             },
             () => {
-                console.log('triggerAction');
+                console.log("triggerAction");
+                let isEffect = !!expression;
                 // trigger action
-                if(typeof condition === 'function'){
-                    const isValid = condition(this);
-                    if(isValid){
-                        if(typeof action === 'function'){
-                            return action(this);
-                        }
-                        throw new Error("[Formable]: action should be typeof `function`");
-                    }
+                if (typeof expression === "function") {
+                    isEffect = expression(this);
+                } else if (typeof expression === "string") {
+                    isEffect = compile(expression)(this.fieldMap);
                 }
-                throw new Error("[Formable]: condition should be typeof `function`");
-                
+                if (isEffect) {
+                    if (typeof action === "function") {
+                        return effect(this);
+                    }
+                    throw new Error("[Formable]: action should be typeof `function`");
+                }
+                return null;
             },
             // otherOptions
-            {},
+            {}
         );
     }
-
 
     // 回调onSubmit事件
     submit() {
