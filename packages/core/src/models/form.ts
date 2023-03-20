@@ -4,6 +4,7 @@ import Schema, { ValidateOption } from 'async-validator';
 import pick from 'lodash/pick';
 import { compile } from 'expression-eval';
 import {
+  convertToRules,
   getValueByNamePath,
   parseArrayNamePathToString,
   setObserverable,
@@ -100,8 +101,6 @@ export class FormStore {
   }
 
   getFieldValue(name: string) {
-    console.log('getFieldValue', toJS(getValueByNamePath(name, this.values)));
-
     return toJS(getValueByNamePath(name, this.values));
   }
 
@@ -119,13 +118,15 @@ export class FormStore {
    * @returns Promise
    */
   validateFields(name?: string, options?: ValidateOption) {
-    const validator = new Schema(pick(this.rules, [name]));
-    const _values = getValueByNamePath(name, this.values);
+    const validateSchema = name ? pick(this.rules, [name]) : this.rules;
+    const validateValues = name ? { [name]: getValueByNamePath(name, this.values) } : this.values;
+    // schema需要做下转换 暂不支持a[0].b.c的处理，考虑直接平铺字段挨个校验?
+    const validator = new Schema(name ? validateSchema : convertToRules(validateSchema));
+    console.log('validator', validator);
+
     return new Promise((resolve, reject) => {
       validator.validate(
-        toJS({
-          [name]: _values,
-        }),
+        toJS(validateValues),
         { firstFields: true, ...options },
         (errors, fields) => {
           console.log('触发校验', errors, fields);
@@ -175,13 +176,13 @@ export class FormStore {
         }
         if (isEffect) {
           if (typeof effect === 'function') {
-            // 记录响应前的状态
+            // TODO: 记录响应前的状态
             return effect(this);
           }
 
           throw new Error('[Formable]: action should be typeof `function`');
         }
-        // 恢复状态
+        // TODO: 恢复状态
 
         return null;
       },
@@ -191,7 +192,9 @@ export class FormStore {
   }
 
   // 回调onSubmit事件
-  submit() {
+  async submit() {
+    // 校验表单
+    await this.validateFields();
     return this.onSubmit?.(this.getFieldValues());
   }
 

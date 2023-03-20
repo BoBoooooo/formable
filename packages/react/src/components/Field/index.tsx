@@ -78,6 +78,7 @@ export const Field: React.FC<IFieldProps> = observer(
         // collect value
         if (trigger === triggerFlag) {
           const v = getValueFromEvent?.(e) ?? e?.target?.value ?? e?.target?.checked ?? e;
+
           form.setFieldValue(name, v);
         }
         // trigger origin event
@@ -107,16 +108,20 @@ export const Field: React.FC<IFieldProps> = observer(
          * </Field>
          */
         // TODO: getOnlyChild
+
+        const mergeProps = (componentProps: any) => ({
+          [valuePropName]: fieldStore.value,
+          onChange: (e: any) => collectValue(e, 'onChange', componentProps),
+          onBlur: (e: any) => collectValue(e, 'onBlur', componentProps),
+          ...componentProps,
+        });
+
         if (React.isValidElement(controlledComponent)) {
           const { props } = children as any;
-          return React.cloneElement(controlledComponent, {
-            [valuePropName]: fieldStore.value,
-            onChange: (e: any) => collectValue(e, 'onChange', props),
-            onBlur: (e: any) => collectValue(e, 'onBlur', props),
-          } as any);
+          return React.cloneElement(controlledComponent, mergeProps(props));
         }
 
-        return React.createElement(controlledComponent as any, componentProps);
+        return React.createElement(controlledComponent as any, mergeProps(componentProps));
       }
       return null;
       // eslint-disable-next-line react-hooks/exhaustive-deps

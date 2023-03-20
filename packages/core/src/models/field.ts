@@ -26,7 +26,9 @@ export class FieldStore {
     this.name = data.name;
     this.initialValue = data.initialValue;
     // item rule register to form
-    setObserverable(this.form.rules, this.name, mergeRules(data.rules, data.required));
+    if (data.rules || data.required) {
+      setObserverable(this.form.rules, this.name, mergeRules(data.rules, data.required));
+    }
 
     makeObservable(this, {
       layout: observable,

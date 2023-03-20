@@ -1,6 +1,7 @@
 import * as mobx from 'mobx';
 import { IRule } from '../types';
 import { path, assocPath } from 'ramda';
+import type { Rules } from 'async-validator';
 
 export const mergeRules = (rules: IRule, required: boolean) => {
   // 校验 rules required拼接
@@ -13,6 +14,37 @@ export const mergeRules = (rules: IRule, required: boolean) => {
   }
   return r;
 };
+
+export function convertToRules(rules: Record<string, any>): Rules {
+  const result: any = {};
+  for (const key in rules) {
+    const keys = key.split(/\.|\[(\d+)\]/).filter(Boolean);
+    let node: any = result;
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
+      console.log('k', k);
+
+      if (!node || !node[k]) {
+        node[k] = {};
+      }
+      if (i === keys.length - 1) {
+        node[k] = { ...rules[key][0] };
+      } else {
+        if (/\d+/.test(keys[i + 1])) {
+          node[k] = {
+            type: 'array',
+            defaultField: { type: 'object', fields: {} },
+          };
+          i++; // skip array index
+        } else {
+          node[k] = { type: 'object', fields: {} };
+        }
+        node = node[k].fields!;
+      }
+    }
+  }
+  return result;
+}
 
 // object add observerable key
 export const setObserverable = (target: Record<string, any>, key: string, value: any) => {
