@@ -25,7 +25,7 @@ export class FieldStore {
     this.form = form;
     this.name = data.name;
     this.initialValue = data.initialValue;
-    // 注册至form
+    // item rule register to form
     setObserverable(this.form.rules, this.name, mergeRules(data.rules, data.required));
 
     makeObservable(this, {

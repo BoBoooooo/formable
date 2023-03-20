@@ -3,7 +3,12 @@ import { makeObservable, observable, action, toJS, reaction } from 'mobx';
 import Schema, { ValidateOption } from 'async-validator';
 import pick from 'lodash/pick';
 import { compile } from 'expression-eval';
-import { setObserverable } from '../utils/helper';
+import {
+  getValueByNamePath,
+  parseArrayNamePathToString,
+  setObserverable,
+  setValueByNamePath,
+} from '../utils/helper';
 import { FieldStore } from './field';
 import { ICondition, IRules } from '../types';
 
@@ -42,22 +47,25 @@ export class FormStore {
     this.onSubmit = initialData?.onSubmit;
   }
 
-  registerField(name: string, initialData: any) {
+  registerField(name: string | any[], initialData: any) {
     if (name) {
-      let field = this.fieldMap[name];
+      const fieldName = parseArrayNamePathToString(name);
+      let field = this.fieldMap[fieldName];
       if (field == null) {
-        console.log('--registerField--', name, initialData);
         // 优先读取全局表单默认值
-        const intialValue = this.initialValues?.[name] ?? initialData?.initialValue;
+        const intialValue =
+          getValueByNamePath(fieldName, this.initialValues) ?? initialData?.initialValue;
+        console.log('--registerField--', fieldName, intialValue, initialData);
+
         field = new FieldStore(this, {
           name,
           ...initialData,
           initialValue: intialValue,
         });
-        this.fieldMap[name] = field;
+        this.fieldMap[fieldName] = field;
 
         // 同步初始值至form.values
-        this.setFieldValue(name, intialValue);
+        this.setFieldValue(fieldName, intialValue);
       }
       return field;
     }
@@ -83,12 +91,18 @@ export class FormStore {
   setFieldValue(name: string, value: any) {
     const field = this.fieldMap[name];
     if (field) {
-      setObserverable(this.values, name, value);
+      if (parseArrayNamePathToString(name).length > 1) {
+        this.values = setValueByNamePath(name, value, this.values);
+      } else {
+        setObserverable(this.values, name, value);
+      }
     }
   }
 
   getFieldValue(name: string) {
-    return toJS(this.values[name]);
+    console.log('getFieldValue', toJS(getValueByNamePath(name, this.values)));
+
+    return toJS(getValueByNamePath(name, this.values));
   }
 
   getFieldValues(names?: string[]) {
@@ -106,26 +120,31 @@ export class FormStore {
    */
   validateFields(name?: string, options?: ValidateOption) {
     const validator = new Schema(pick(this.rules, [name]));
-    const _values = pick(this.values, [name]);
-
+    const _values = getValueByNamePath(name, this.values);
     return new Promise((resolve, reject) => {
-      validator.validate(toJS(_values), { firstFields: true, ...options }, (errors, fields) => {
-        console.log('触发校验', errors, fields);
-        if (errors) {
-          // TODO: 收集到错误堆栈
-          console.log('校验失败', errors, fields);
-          this.errors = fields;
-          // eslint-disable-next-line prefer-promise-reject-errors
-          reject({
-            fields,
-            errors,
-          });
-        } else {
-          this.errors = {};
-          this.warnings = {};
-          resolve(fields);
+      validator.validate(
+        toJS({
+          [name]: _values,
+        }),
+        { firstFields: true, ...options },
+        (errors, fields) => {
+          console.log('触发校验', errors, fields);
+          if (errors) {
+            // TODO: 收集到错误堆栈
+            console.log('校验失败', errors, fields);
+            this.errors = fields;
+            // eslint-disable-next-line prefer-promise-reject-errors
+            reject({
+              fields,
+              errors,
+            });
+          } else {
+            this.errors = {};
+            this.warnings = {};
+            resolve(fields);
+          }
         }
-      });
+      );
     });
   }
 
@@ -155,11 +174,15 @@ export class FormStore {
           isEffect = compile(expression)(this.fieldMap);
         }
         if (isEffect) {
-          if (typeof action === 'function') {
+          if (typeof effect === 'function') {
+            // 记录响应前的状态
             return effect(this);
           }
+
           throw new Error('[Formable]: action should be typeof `function`');
         }
+        // 恢复状态
+
         return null;
       },
       // otherOptions

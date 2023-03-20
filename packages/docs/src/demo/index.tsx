@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Field, FormObserver, observer, useForm } from '@formable/react';
+import { FormStore } from '@formable/core';
 import { Form, FormItem } from '@formable/antd';
 import { Button, Input, Row, Col, Card, Switch, Radio, Select } from 'antd';
-import 'antd/dist/antd.css';
 import ReactJson from 'react-json-view';
-import { FormStore } from '@formable/core';
+import 'antd/dist/antd.css';
 
 const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
   const [bool, setBool] = useState(false);
@@ -18,8 +18,29 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
         onSubmit={console.log}
         initialValues={{
           user: 'ou1t',
+          username: {
+            firstName: '测试',
+          },
         }}
       >
+        <Field
+          decorator={[FormItem]}
+          label="嵌套对象"
+          name="username.firstName"
+          required
+          // initialValue="first"
+        >
+          <Input />
+        </Field>
+        <Field
+          decorator={[FormItem]}
+          label="嵌套数组"
+          name="arr[0].label"
+          required
+          // initialValue="first"
+        >
+          <Input />
+        </Field>
         <Field
           decorator={[FormItem]}
           getValueFromEvent={(e) => {
@@ -147,6 +168,9 @@ const Layout = () => {
   const [form] = useForm({
     initialValues: {
       user: 'ou1t',
+      username: {
+        firstName: '测试',
+      },
     },
     components: {
       Select,
