@@ -13,7 +13,6 @@ import FormItemLabel from './FormItemLabel';
 import FormItemInput from './FormItemInput';
 import type { FormItemStatusContextProps, ValidateStatus } from '../../types';
 import { FormContext, FormItemInputContext } from '../../utils/context';
-import { useDebounce } from '../../hooks';
 
 const iconMap = {
   success: CheckCircleFilled,
@@ -46,11 +45,10 @@ export const FormItem = (props: FormItemProps) => {
   } = useFieldStatus() ?? {};
   const { requiredMark } = React.useContext(FormContext);
   const itemPrefixCls = `${prefixCls}-item`;
-
   // ======================== Margin ========================
   const itemRef = React.useRef<HTMLDivElement>(null);
-  const debounceErrors = useDebounce(errors?.map((e) => e?.message));
-  const debounceWarnings = useDebounce(warnings?.map((e) => e?.message));
+  const debounceErrors = errors.map((e) => e?.message);
+  const debounceWarnings = warnings.map((e) => e?.message);
   // TODO: 需要记录到fieldStore
   const meta = {
     touched: false,

@@ -5,7 +5,6 @@ import { ConfigContext } from 'antd/es/config-provider';
 import collapseMotion from '../../utils/motion';
 import { FormItemPrefixContext } from '../../utils/context';
 import type { ValidateStatus } from '../../types';
-import { useDebounce } from '../../hooks';
 
 const EMPTY_LIST: React.ReactNode[] = [];
 
@@ -53,10 +52,8 @@ export default function ErrorList({
   const baseClassName = `${prefixCls}-item-explain`;
   const rootPrefixCls = getPrefixCls();
 
-  // We have to debounce here again since somewhere use ErrorList directly still need no shaking
-  // ref: https://github.com/ant-design/ant-design/issues/36336
-  const debounceErrors = useDebounce(errors);
-  const debounceWarnings = useDebounce(warnings);
+  const debounceErrors = errors;
+  const debounceWarnings = warnings;
 
   const fullKeyList = React.useMemo(() => {
     if (help !== undefined && help !== null) {
