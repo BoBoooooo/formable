@@ -1,18 +1,17 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { makeObservable, observable, action, toJS, reaction } from 'mobx';
+import { makeObservable, observable, action, toJS, IReactionDisposer } from 'mobx';
 import Schema, { ValidateOption } from 'async-validator';
 import pick from 'lodash/pick';
-import { compile } from 'expression-eval';
 import {
   convertToRules,
   getValueByNamePath,
-  mergeRules,
   parseArrayNamePathToString,
   setObserverable,
   setValueByNamePath,
 } from '../utils/helper';
 import { FieldStore } from './field';
 import { ICondition, IRules, FormDisplayType, DisplayType } from '../types';
+import { genListenerReaction } from './reaction';
 
 export class FormStore {
   @observable name: string;
@@ -49,6 +48,7 @@ export class FormStore {
     this.onSubmit = initialData?.onSubmit;
   }
 
+  // TODO: initData 定义待补充
   registerField(name: string | any[], initialData: any) {
     if (name) {
       const fieldName = parseArrayNamePathToString(name);
@@ -174,62 +174,7 @@ export class FormStore {
     expression: ICondition,
     effect: any
   ) {
-    reaction(
-      // watch multiple fields
-      () => {
-        let orCondition: boolean;
-        // FIXME: any other option ?
-        Object.keys(this.values).forEach((k) => {
-          if (watchFields.includes(k)) {
-            orCondition = orCondition || this.values[k];
-          }
-        });
-        return orCondition;
-      },
-      () => {
-        let isEffect = !!expression;
-        // trigger action
-        if (typeof expression === 'undefined') {
-          isEffect = true;
-        } else if (typeof expression === 'function') {
-          isEffect = expression(this.fieldMap[sourceField], this);
-        } else if (typeof expression === 'string') {
-          isEffect = compile(expression)(this.fieldMap);
-        }
-
-        console.log('triggerAction', isEffect);
-
-        const effectIsObjectType = Object.prototype.toString.call(effect) === '[object Object]';
-        if (isEffect) {
-          if (typeof effect === 'function') {
-            effect(this);
-          } else if (effectIsObjectType) {
-            // TODO: 重构..
-            if ('layout' in effect) {
-              this.setFieldLayout(sourceField, effect.layout);
-            }
-            if ('rules' in effect || 'required' in effect) {
-              this.setFieldRules(sourceField, mergeRules(effect.rules, effect.required));
-            }
-            if ('display' in effect) {
-              this.setFieldDisplay(sourceField, effect.display);
-            }
-            if ('value' in effect) {
-              this.setFieldValue(sourceField, effect.value);
-            }
-          } else {
-            throw new Error('[Formable]: action should be typeof `function` or `object`');
-          }
-          // TODO: 恢复初始状态 ?
-        } else if (this.fieldMap[sourceField] && effectIsObjectType) {
-          this.fieldMap[sourceField].resetStatus();
-        }
-        this.fieldMap;
-        return null;
-      },
-      // otherOptions
-      {}
-    );
+    return genListenerReaction(sourceField, watchFields, expression, effect, this);
   }
 
   // 回调onSubmit事件

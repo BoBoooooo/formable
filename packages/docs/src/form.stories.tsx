@@ -1,10 +1,14 @@
 import React from 'react';
-import Demo from './demo';
+import { Demo, Listener } from './demo';
 
 export default {
   title: 'Form',
 };
 
-export const Basic = () => {
+export const BasicDemo = () => {
   return <Demo />;
+};
+
+export const ListenerDemo = () => {
+  return <Listener />;
 };

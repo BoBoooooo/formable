@@ -1,9 +1,8 @@
-import { DisplayType, DisplayTypeEnum } from '@formable/core';
+import { DisplayType, DisplayTypeEnum, IListener } from '@formable/core';
 import { observer } from 'mobx-react-lite';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { FieldProvider } from '../../context/field-instance';
 import { useFormInstance } from '../../context/form-instance';
-import { IListener } from '../../types';
 import { isValidComponent, noop } from '../../utils/helper';
 import { useDeepCompareEffect } from '../../utils/useDeepCompareEffect';
 
@@ -21,7 +20,7 @@ type IFieldProps = Partial<{
   required: boolean;
   validateTrigger: string | string[];
   decorator: [node: any, props?: any];
-  listeners: IListener;
+  listeners: IListener[];
   getValueFromEvent: (...args: any[]) => any;
 }>;
 
@@ -41,6 +40,7 @@ export const Field: React.FC<IFieldProps> = observer(
     validateTrigger = 'onChange',
     required,
     rules,
+    listeners,
     getValueFromEvent,
   }) => {
     const form = useFormInstance();
@@ -50,6 +50,7 @@ export const Field: React.FC<IFieldProps> = observer(
       rules,
       required,
       display,
+      listeners,
     });
 
     const mergeDisplay = useMemo<DisplayType>(

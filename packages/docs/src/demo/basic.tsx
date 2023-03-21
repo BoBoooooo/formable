@@ -211,4 +211,4 @@ const Layout = () => {
   );
 };
 
-export default observer(Layout);
+export const Demo = observer(Layout);

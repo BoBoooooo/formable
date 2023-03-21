@@ -2,6 +2,7 @@ import { makeObservable, observable, action, computed } from 'mobx';
 import { DisplayType } from '../types';
 import { mergeRules, setObserverable } from '../utils/helper';
 import { FormStore } from './form';
+import { ReactionQueue } from './reaction';
 
 export class FieldStore {
   name: string;
@@ -21,7 +22,7 @@ export class FieldStore {
   // 存储field初始状态
   initialStatus: Record<string, any> = {};
 
-  private readonly form: FormStore;
+  readonly form: FormStore;
 
   constructor(form: FormStore, data: any) {
     this.form = form;
@@ -38,6 +39,11 @@ export class FieldStore {
       const localRules = mergeRules(data.rules, data.required);
       setObserverable(this.form.rules, this.name, localRules);
       this.initialStatus.rules = localRules;
+    }
+
+    // register reaction
+    if (Array.isArray(data.listeners) && data.listeners.length) {
+      new ReactionQueue(this, data.listeners);
     }
 
     makeObservable(this, {
