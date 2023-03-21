@@ -1,7 +1,9 @@
+import { DisplayType, DisplayTypeEnum } from '@formable/core';
 import { observer } from 'mobx-react-lite';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { FieldProvider } from '../../context/field-instance';
 import { useFormInstance } from '../../context/form-instance';
+import { IListener } from '../../types';
 import { isValidComponent, noop } from '../../utils/helper';
 import { useDeepCompareEffect } from '../../utils/useDeepCompareEffect';
 
@@ -19,6 +21,7 @@ type IFieldProps = Partial<{
   required: boolean;
   validateTrigger: string | string[];
   decorator: [node: any, props?: any];
+  listeners: IListener;
   getValueFromEvent: (...args: any[]) => any;
 }>;
 
@@ -41,6 +44,7 @@ export const Field: React.FC<IFieldProps> = observer(
     getValueFromEvent,
   }) => {
     const form = useFormInstance();
+
     const fieldStore = form.registerField(name, {
       initialValue,
       rules,
@@ -48,19 +52,27 @@ export const Field: React.FC<IFieldProps> = observer(
       display,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const mergeDisplay = useMemo(
-      () => form.display || fieldStore?.display,
+    const mergeDisplay = useMemo<DisplayType>(
+      () => fieldStore?.display || form.display,
       [form.display, fieldStore?.display]
     );
 
     useDeepCompareEffect(() => {
       // 重置field.layout
-      fieldStore?.initLayout({
-        ...decorator?.[1],
-        label,
-      });
+      fieldStore?.setLayout(
+        {
+          ...decorator?.[1],
+          label,
+        },
+        true
+      );
     }, [decorator, label]);
+
+    useEffect(() => {
+      if (mergeDisplay === DisplayTypeEnum.None) {
+        form.removeField(name, preserve);
+      }
+    }, [mergeDisplay, preserve]);
 
     useEffect(() => {
       return () => {
@@ -110,10 +122,10 @@ export const Field: React.FC<IFieldProps> = observer(
         // TODO: getOnlyChild
 
         const mergeProps = (componentProps: any) => ({
+          ...componentProps,
           [valuePropName]: fieldStore.value,
           onChange: (e: any) => collectValue(e, 'onChange', componentProps),
           onBlur: (e: any) => collectValue(e, 'onBlur', componentProps),
-          ...componentProps,
         });
 
         if (React.isValidElement(controlledComponent)) {
@@ -128,30 +140,33 @@ export const Field: React.FC<IFieldProps> = observer(
     }, [name, children, valuePropName, fieldStore?.value, trigger]);
 
     return (
-      <FieldProvider value={fieldStore}>
-        {
-          // render decorator
-          isValidComponent(decorator?.[0]) ? (
-            React.createElement(
-              decorator?.[0] as any,
-              {
-                label,
-                // inject decorator props
-                ...fieldStore.layout,
-              },
-              controlledChildren
+      mergeDisplay !== DisplayTypeEnum.Hidden &&
+      mergeDisplay !== DisplayTypeEnum.None && (
+        <FieldProvider value={fieldStore}>
+          {
+            // render decorator
+            isValidComponent(decorator?.[0]) ? (
+              React.createElement(
+                decorator?.[0] as any,
+                {
+                  label,
+                  // inject decorator props
+                  ...fieldStore.layout,
+                },
+                controlledChildren
+              )
+            ) : (
+              // default render
+              <>
+                {/* label */}
+                {label && <label>{label}</label>}
+                {/* component */}
+                {controlledChildren}
+              </>
             )
-          ) : (
-            // default render
-            <>
-              {/* label */}
-              {label && <label>{label}</label>}
-              {/* component */}
-              {controlledChildren}
-            </>
-          )
-        }
-      </FieldProvider>
+          }
+        </FieldProvider>
+      )
     );
   }
 );

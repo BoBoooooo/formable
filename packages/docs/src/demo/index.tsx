@@ -105,13 +105,16 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
             ]}
           />
         </Field>
+        <Field decorator={[FormItem]} label="联动Field_listeners" name="dynamic_field2">
+          <Input />
+        </Field>
         <FormObserver>
           {(v) => {
             return v.radio === 1 ? (
               <Field
                 preserve
                 decorator={[FormItem]}
-                label="联动Field"
+                label="联动Field_observer"
                 name="dynamic_field"
                 required
                 initialValue="dynamic"
@@ -131,13 +134,13 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
             <Button onClick={() => form.clear()}>清空</Button>
             <Button
               onClick={() => {
-                form.updateFieldLayout('user', {
+                form.setFieldLayout('user', {
                   label: '联动 user!!!!!',
                   extra: '测试',
                   tooltip: <div>123</div>,
                 });
 
-                form.updateFieldLayout('age', {
+                form.setFieldLayout('age', {
                   label: '联动 age!!!!!',
                 });
               }}
@@ -178,6 +181,7 @@ const Layout = () => {
   });
 
   form.registerListener(
+    'radio',
     ['user'],
     () => {
       return form.getFieldValue('user') === '123';
@@ -187,9 +191,12 @@ const Layout = () => {
     }
   );
 
-  form.registerListener(['radio'], 'radio.value === 0', () => {
-    form.setFieldValue('age', 66);
+  form.registerListener('dynamic_field2', ['radio'], 'radio.value === 0', () => {
+    form.fieldMap.dynamic_field2.display = 'none';
   });
+
+  form.registerListener('age', ['radio'], 'radio.value === 0', { value: 666, required: false });
+
   return (
     <Row gutter={20}>
       <Col span={12}>

@@ -1,8 +1,7 @@
 import { makeObservable, observable, action, computed } from 'mobx';
+import { DisplayType } from '../types';
 import { mergeRules, setObserverable } from '../utils/helper';
 import { FormStore } from './form';
-
-type ValidateStatus = 'success' | 'warning' | 'error' | 'validating' | '';
 
 export class FieldStore {
   name: string;
@@ -13,11 +12,14 @@ export class FieldStore {
 
   validating: boolean;
 
-  display: 'editable' | 'disabled' | 'preview' = 'editable';
+  display: DisplayType = 'edit';
 
   layout: Record<string, any>;
 
-  validateStatus: ValidateStatus;
+  validateStatus: DisplayType;
+
+  // 存储field初始状态
+  initialStatus: Record<string, any> = {};
 
   private readonly form: FormStore;
 
@@ -25,23 +27,35 @@ export class FieldStore {
     this.form = form;
     this.name = data.name;
     this.initialValue = data.initialValue;
+    this.display = data.display;
+    this.initialStatus = {
+      name: data.name,
+      initialValue: this.initialValue,
+      display: this.display,
+    };
     // item rule register to form
     if (data.rules || data.required) {
-      setObserverable(this.form.rules, this.name, mergeRules(data.rules, data.required));
+      const localRules = mergeRules(data.rules, data.required);
+      setObserverable(this.form.rules, this.name, localRules);
+      this.initialStatus.rules = localRules;
     }
 
     makeObservable(this, {
       layout: observable,
       name: observable,
+      display: observable,
       value: computed,
       required: computed,
-      updateLayout: action,
-      initLayout: action,
+      setLayout: action,
     });
   }
 
   get required() {
     return this.rules.some((desc) => !!desc?.required);
+  }
+
+  set rules(newRules) {
+    setObserverable(this.form.rules, this.name, newRules);
   }
 
   get rules() {
@@ -72,6 +86,13 @@ export class FieldStore {
     return Array.isArray(selfSuccesses) ? selfSuccesses : [selfSuccesses];
   }
 
+  resetStatus() {
+    this.value = this.initialValue;
+    this.layout = this.initialStatus.layout;
+    this.rules = this.initialStatus.rules;
+    this.display = this.initialStatus.display;
+  }
+
   reset() {
     this.value = this.initialValue ?? null;
   }
@@ -80,11 +101,11 @@ export class FieldStore {
     this.value = null;
   }
 
-  initLayout(layout: any) {
-    this.layout = layout;
-  }
-
-  updateLayout(newLayout: any) {
+  setLayout(newLayout: any, isInit = false) {
+    if (isInit) {
+      this.initialStatus.layout = newLayout;
+      this.layout = newLayout;
+    }
     this.layout = {
       ...this.layout,
       ...newLayout,

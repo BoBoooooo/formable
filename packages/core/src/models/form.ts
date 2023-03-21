@@ -6,17 +6,18 @@ import { compile } from 'expression-eval';
 import {
   convertToRules,
   getValueByNamePath,
+  mergeRules,
   parseArrayNamePathToString,
   setObserverable,
   setValueByNamePath,
 } from '../utils/helper';
 import { FieldStore } from './field';
-import { ICondition, IRules } from '../types';
+import { ICondition, IRules, FormDisplayType, DisplayType } from '../types';
 
 export class FormStore {
   @observable name: string;
 
-  @observable display: 'editable' | 'disabled' | 'preview';
+  @observable display: FormDisplayType;
 
   @observable fieldMap: Record<string, FieldStore> = {};
 
@@ -81,6 +82,17 @@ export class FormStore {
     }
   }
 
+  getFieldValue(name: string) {
+    return toJS(getValueByNamePath(name, this.values));
+  }
+
+  getFieldValues(names?: string[]) {
+    if (names) {
+      return toJS(pick(this.values, names));
+    }
+    return toJS(this.values);
+  }
+
   setFieldValues(values: any) {
     Object.keys(values).forEach((fieldName) => {
       const v = values[fieldName];
@@ -100,15 +112,19 @@ export class FormStore {
     }
   }
 
-  getFieldValue(name: string) {
-    return toJS(getValueByNamePath(name, this.values));
+  setFieldRules(name: string, newRules: any) {
+    if (this.fieldMap[name]) {
+      this.fieldMap[name].rules = newRules;
+    }
   }
 
-  getFieldValues(names?: string[]) {
-    if (names) {
-      return toJS(pick(this.values, names));
+  setFieldLayout(name: string, newLayout: Record<string, any>) {
+    this.fieldMap[name]?.setLayout(newLayout);
+  }
+  setFieldDisplay(name: string, newDisplay: DisplayType) {
+    if (this.fieldMap[name]) {
+      this.fieldMap[name].display = newDisplay;
     }
-    return toJS(this.values);
   }
 
   /**
@@ -152,7 +168,12 @@ export class FormStore {
   /**
    * 注册联动
    */
-  registerListener(watchFields: string[], expression: ICondition, effect: any) {
+  registerListener(
+    sourceField: string,
+    watchFields: string[],
+    expression: ICondition,
+    effect: any
+  ) {
     reaction(
       // watch multiple fields
       () => {
@@ -166,24 +187,44 @@ export class FormStore {
         return orCondition;
       },
       () => {
-        console.log('triggerAction');
         let isEffect = !!expression;
         // trigger action
-        if (typeof expression === 'function') {
+        if (typeof expression === 'undefined') {
+          isEffect = true;
+        } else if (typeof expression === 'function') {
           isEffect = expression(this);
         } else if (typeof expression === 'string') {
           isEffect = compile(expression)(this.fieldMap);
         }
+
+        console.log('triggerAction', isEffect);
+
+        const effectIsObjectType = Object.prototype.toString.call(effect) === '[object Object]';
         if (isEffect) {
           if (typeof effect === 'function') {
-            // TODO: 记录响应前的状态
-            return effect(this);
+            effect(this);
+          } else if (effectIsObjectType) {
+            // TODO: 重构..
+            if ('layout' in effect) {
+              this.setFieldLayout(sourceField, effect.layout);
+            }
+            if ('rules' in effect || 'required' in effect) {
+              this.setFieldRules(sourceField, mergeRules(effect.rules, effect.required));
+            }
+            if ('display' in effect) {
+              this.setFieldDisplay(sourceField, effect.display);
+            }
+            if ('value' in effect) {
+              this.setFieldValue(sourceField, effect.value);
+            }
+          } else {
+            throw new Error('[Formable]: action should be typeof `function` or `object`');
           }
-
-          throw new Error('[Formable]: action should be typeof `function`');
+          // TODO: 恢复初始状态 ?
+        } else if (this.fieldMap[sourceField] && effectIsObjectType) {
+          this.fieldMap[sourceField].resetStatus();
         }
-        // TODO: 恢复状态
-
+        this.fieldMap;
         return null;
       },
       // otherOptions
@@ -206,10 +247,6 @@ export class FormStore {
   @action
   reset(): void {
     Object.values(this.fieldMap).forEach((field: FieldStore) => field.reset());
-  }
-
-  updateFieldLayout(name: string, newLayout: Record<string, any>) {
-    this.fieldMap[name]?.updateLayout(newLayout);
   }
 
   getInstance() {
