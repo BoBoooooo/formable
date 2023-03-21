@@ -14,16 +14,7 @@ export const genListenerReaction = (
 ) => {
   return reaction(
     // watch multiple fields
-    () => {
-      let orCondition: boolean;
-      // FIXME: any other option ?
-      Object.keys(formContext.values).forEach((k) => {
-        if (watchFields.includes(k)) {
-          orCondition = orCondition || formContext.values[k];
-        }
-      });
-      return orCondition;
-    },
+    () => watchFields.map((field) => formContext.values[field]?.toString()).join(' '),
     () => {
       let isEffect = !!expression;
       // trigger action
