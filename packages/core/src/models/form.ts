@@ -192,7 +192,7 @@ export class FormStore {
         if (typeof expression === 'undefined') {
           isEffect = true;
         } else if (typeof expression === 'function') {
-          isEffect = expression(this);
+          isEffect = expression(this.fieldMap[sourceField], this);
         } else if (typeof expression === 'string') {
           isEffect = compile(expression)(this.fieldMap);
         }
