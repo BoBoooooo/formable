@@ -22,6 +22,8 @@ export class FieldStore {
   // 存储field初始状态
   initialStatus: Record<string, any> = {};
 
+  reactionQueue: ReactionQueue;
+
   readonly form: FormStore;
 
   constructor(form: FormStore, data: any) {
@@ -43,7 +45,7 @@ export class FieldStore {
 
     // register reaction
     if (Array.isArray(data.listeners) && data.listeners.length) {
-      new ReactionQueue(this, data.listeners);
+      this.reactionQueue = new ReactionQueue(this, data.listeners);
     }
 
     makeObservable(this, {

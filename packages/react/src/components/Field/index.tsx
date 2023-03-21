@@ -1,28 +1,11 @@
-import { DisplayType, DisplayTypeEnum, IListener } from '@formable/core';
+import { DisplayType, DisplayTypeEnum } from '@formable/core';
 import { observer } from 'mobx-react-lite';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { FieldProvider } from '../../context/field-instance';
 import { useFormInstance } from '../../context/form-instance';
+import { IFieldProps } from '../../types';
 import { isValidComponent, noop } from '../../utils/helper';
 import { useDeepCompareEffect } from '../../utils/useDeepCompareEffect';
-
-type IFieldProps = Partial<{
-  component: string;
-  componentProps: any;
-  display: 'editable' | 'disabled' | 'preview';
-  initialValue: any;
-  name: string;
-  preserve: boolean;
-  valuePropName: string;
-  label: React.ReactNode;
-  trigger: string;
-  rules: any[];
-  required: boolean;
-  validateTrigger: string | string[];
-  decorator: [node: any, props?: any];
-  listeners: IListener[];
-  getValueFromEvent: (...args: any[]) => any;
-}>;
 
 export const Field: React.FC<IFieldProps> = observer(
   ({
@@ -152,7 +135,7 @@ export const Field: React.FC<IFieldProps> = observer(
                 {
                   label,
                   // inject decorator props
-                  ...fieldStore.layout,
+                  ...fieldStore?.layout,
                 },
                 controlledChildren
               )

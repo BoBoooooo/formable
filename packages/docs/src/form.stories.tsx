@@ -1,5 +1,5 @@
 import React from 'react';
-import { Demo, Listener } from './demo';
+import { Demo, Listener, FormableItem } from './demo';
 
 export default {
   title: 'Form',
@@ -11,4 +11,7 @@ export const BasicDemo = () => {
 
 export const ListenerDemo = () => {
   return <Listener />;
+};
+export const FormItemDemo = () => {
+  return <FormableItem />;
 };

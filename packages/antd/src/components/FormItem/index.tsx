@@ -39,7 +39,7 @@ export const FormItem = (props: FormItemProps) => {
 
   const prefixCls = getPrefixCls('form', customizePrefixCls);
   // ======================== INJECT FIELD STORE STATUS ========================
-  const { errors, warnings, required: isRequired } = useFieldStatus();
+  const { errors = [], warnings = [], required: isRequired } = useFieldStatus() ?? {};
   const { requiredMark } = React.useContext(FormContext);
   const itemPrefixCls = `${prefixCls}-item`;
 
