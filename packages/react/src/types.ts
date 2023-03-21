@@ -1,4 +1,4 @@
-import { IListener } from '@formable/core';
+import { IListener, ValidateStatus } from '@formable/core';
 
 export type IFieldProps = Partial<{
   component: string;
@@ -8,6 +8,7 @@ export type IFieldProps = Partial<{
   name: string;
   preserve: boolean;
   valuePropName: string;
+  validateStatus: ValidateStatus;
   label: React.ReactNode;
   trigger: string;
   rules: any[];

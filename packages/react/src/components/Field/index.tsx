@@ -21,6 +21,7 @@ export const Field: React.FC<IFieldProps> = observer(
     valuePropName = 'value',
     trigger = 'onChange',
     validateTrigger = 'onChange',
+    validateStatus,
     required,
     rules,
     listeners,
@@ -34,6 +35,7 @@ export const Field: React.FC<IFieldProps> = observer(
       required,
       display,
       listeners,
+      validateStatus,
     });
 
     const mergeDisplay = useMemo<DisplayType>(
@@ -122,7 +124,6 @@ export const Field: React.FC<IFieldProps> = observer(
       return null;
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [name, children, valuePropName, fieldStore?.value, trigger]);
-
     return (
       mergeDisplay !== DisplayTypeEnum.Hidden &&
       mergeDisplay !== DisplayTypeEnum.None && (

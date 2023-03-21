@@ -1,5 +1,5 @@
 import { makeObservable, observable, action, computed } from 'mobx';
-import { DisplayType } from '../types';
+import { DisplayType, ValidateStatus } from '../types';
 import { mergeRules, setObserverable } from '../utils/helper';
 import { FormStore } from './form';
 import { ReactionQueue } from './reaction';
@@ -17,7 +17,7 @@ export class FieldStore {
 
   layout: Record<string, any>;
 
-  validateStatus: DisplayType;
+  validateStatus: ValidateStatus;
 
   // 存储field初始状态
   initialStatus: Record<string, any> = {};
@@ -30,6 +30,7 @@ export class FieldStore {
     this.form = form;
     this.name = data.name;
     this.initialValue = data.initialValue;
+    this.validateStatus = data.validateStatus;
     this.display = data.display;
     this.initialStatus = {
       name: data.name,

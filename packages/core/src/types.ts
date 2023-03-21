@@ -6,7 +6,7 @@ export type { Rules as IRules } from 'async-validator';
 export type ICondition = IListener['condition'];
 
 export type DisplayType = 'edit' | 'disabled' | 'preview' | 'hidden' | 'none' | '';
-
+export type ValidateStatus = 'success' | 'warning' | 'error' | 'validating';
 export type FormDisplayType = 'edit' | 'disabled' | 'preview' | '';
 
 export enum DisplayTypeEnum {

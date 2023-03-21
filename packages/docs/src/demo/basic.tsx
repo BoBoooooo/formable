@@ -28,6 +28,7 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
           label="嵌套对象"
           name="username.firstName"
           required
+          validateStatus="warning"
           // initialValue="first"
         >
           <Input />

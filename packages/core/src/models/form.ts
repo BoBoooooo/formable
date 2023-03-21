@@ -147,9 +147,18 @@ export class FormStore {
         (errors, fields) => {
           console.log('触发校验', errors, fields);
           if (errors) {
-            // TODO: 收集到错误堆栈
+            // 收集到错误堆栈 & 判断是warning还是error
             console.log('校验失败', errors, fields);
-            this.errors = fields;
+            Object.keys(fields).forEach((fieldName) => {
+              const validateType = this.fieldMap[fieldName]?.validateStatus;
+              if (validateType === 'warning') {
+                this.warnings[fieldName] = fields[fieldName];
+              }
+              if (validateType === 'error') {
+                this.errors[fieldName] = fields[fieldName];
+              }
+            });
+
             // eslint-disable-next-line prefer-promise-reject-errors
             reject({
               fields,
