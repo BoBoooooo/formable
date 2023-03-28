@@ -52,7 +52,7 @@ export class FormStore {
   registerField(name: string | any[], initialData: any) {
     if (name) {
       const fieldName = parseArrayNamePathToString(name);
-      let field = this.fieldMap[fieldName];
+      let field = this.getFieldInstance(fieldName);
       if (field == null) {
         // 优先读取全局表单默认值
         const intialValue =
@@ -74,6 +74,12 @@ export class FormStore {
     return null;
   }
 
+  // 获取字段实例
+  getFieldInstance(name: string | any[]) {
+    const fieldName = parseArrayNamePathToString(name);
+    return this.fieldMap[fieldName];
+  }
+
   removeField(name: string, preserve = false) {
     // removeField
     delete this.fieldMap.name;
@@ -86,7 +92,7 @@ export class FormStore {
     return toJS(getValueByNamePath(name, this.values));
   }
 
-  getFieldValues(names?: string[]) {
+  getFieldsValue(names?: string[]) {
     if (names) {
       return toJS(pick(this.values, names));
     }
@@ -102,7 +108,7 @@ export class FormStore {
 
   @action
   setFieldValue(name: string, value: any) {
-    const field = this.fieldMap[name];
+    const field = this.getFieldInstance(name);
     if (field) {
       if (parseArrayNamePathToString(name).length > 1) {
         this.values = setValueByNamePath(name, value, this.values);
@@ -121,9 +127,16 @@ export class FormStore {
   setFieldLayout(name: string, newLayout: Record<string, any>) {
     this.fieldMap[name]?.setLayout(newLayout);
   }
+
   setFieldDisplay(name: string, newDisplay: DisplayType) {
     if (this.fieldMap[name]) {
       this.fieldMap[name].display = newDisplay;
+    }
+  }
+
+  setFieldTouched(name: string, isTouched: boolean) {
+    if (this.fieldMap[name]) {
+      this.fieldMap[name].touched = isTouched;
     }
   }
 
@@ -186,11 +199,15 @@ export class FormStore {
     return genListenerReaction(sourceField, watchFields, expression, effect, this);
   }
 
-  // 回调onSubmit事件
+  // submit form
   async submit() {
-    // 校验表单
+    // validate form
     await this.validateFields();
-    return this.onSubmit?.(this.getFieldValues());
+    const formValues = this.getFieldsValue();
+    if (typeof this.onSubmit === 'function') {
+      this.onSubmit(formValues);
+    }
+    return formValues;
   }
 
   @action

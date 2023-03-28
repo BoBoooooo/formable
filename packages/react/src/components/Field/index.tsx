@@ -68,11 +68,16 @@ export const Field: React.FC<IFieldProps> = observer(
     }, [name, preserve]);
 
     /**
+     * 0. field is touched
      * 1. collect field value to formStore
      * 2. triggerValidate
      */
     const collectValue = useCallback(
       (e: any, triggerFlag: typeof trigger, componentProps) => {
+        // setFieldTouched （onBlur & onChange）
+        if (name) {
+          form.setFieldTouched(name, true);
+        }
         // collect value
         if (trigger === triggerFlag) {
           const v = getValueFromEvent?.(e) ?? e?.target?.value ?? e?.target?.checked ?? e;
