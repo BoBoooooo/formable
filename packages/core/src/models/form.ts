@@ -141,6 +141,7 @@ export class FormStore {
   }
 
   /**
+   * TODO: 需要支持下 name传多个字段的情况
    * 校验字段
    * @param name 校验字段 缺省则校验全部
    * @param options async-validator options
@@ -154,36 +155,40 @@ export class FormStore {
     console.log('validator', validator);
 
     return new Promise((resolve, reject) => {
-      validator.validate(
-        toJS(validateValues),
-        { firstFields: true, ...options },
-        (errors, fields) => {
-          console.log('触发校验', errors, fields);
-          if (errors) {
-            // 收集到错误堆栈 & 判断是warning还是error
-            console.log('校验失败', errors, fields);
-            Object.keys(fields).forEach((fieldName) => {
-              const validateType = this.fieldMap[fieldName]?.validateStatus;
-              if (validateType === 'warning') {
-                this.warnings[fieldName] = fields[fieldName];
-              }
-              if (validateType === 'error') {
-                this.errors[fieldName] = fields[fieldName];
-              }
-            });
-
-            // eslint-disable-next-line prefer-promise-reject-errors
-            reject({
-              fields,
-              errors,
-            });
-          } else {
-            this.errors = {};
-            this.warnings = {};
-            resolve(fields);
-          }
+      // 单字段校验时触发
+      const fieldInstance = this.getFieldInstance(name);
+      if (fieldInstance) {
+        fieldInstance.validating = true;
+      }
+      validator.validate(validateValues, { firstFields: true, ...options }, (errors, fields) => {
+        console.log('触发校验', errors, fields);
+        if (fieldInstance) {
+          fieldInstance.validating = false;
         }
-      );
+        if (errors) {
+          // 收集到错误堆栈 & 判断是warning还是error
+          console.log('校验失败', errors, fields);
+          Object.keys(fields).forEach((fieldName) => {
+            const validateType = this.fieldMap[fieldName]?.validateStatus;
+            if (validateType === 'warning') {
+              this.warnings[fieldName] = fields[fieldName];
+            }
+            if (validateType === 'error') {
+              this.errors[fieldName] = fields[fieldName];
+            }
+          });
+
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject({
+            fields,
+            errors,
+          });
+        } else {
+          this.errors = {};
+          this.warnings = {};
+          resolve(fields);
+        }
+      });
     });
   }
 

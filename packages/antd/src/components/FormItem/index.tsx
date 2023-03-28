@@ -42,6 +42,8 @@ export const FormItem = (props: FormItemProps) => {
     warnings = [],
     required: isRequired,
     validateStatus,
+    touched,
+    validating,
   } = useFieldStatus() ?? {};
   const { requiredMark } = React.useContext(FormContext);
   const itemPrefixCls = `${prefixCls}-item`;
@@ -51,8 +53,8 @@ export const FormItem = (props: FormItemProps) => {
   const debounceWarnings = warnings.map((e) => e?.message);
   // TODO: 需要记录到fieldStore
   const meta = {
-    touched: false,
-    validating: false,
+    touched,
+    validating,
   };
   const hasHelp = help !== undefined && help !== null;
   const hasError = !!(hasHelp || errors.length || warnings.length);
