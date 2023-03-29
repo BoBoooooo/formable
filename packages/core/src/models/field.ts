@@ -30,8 +30,8 @@ export class FieldStore {
     this.form = form;
     this.name = data.name;
     this.initialValue = data.initialValue;
-    this.validateStatus = data.validateStatus;
-    this.display = data.display;
+    this.validateStatus = data.validateStatus ?? 'error';
+    this.display = data.display ?? 'edit';
     this.initialStatus = {
       name: data.name,
       initialValue: this.initialValue,
@@ -56,11 +56,14 @@ export class FieldStore {
       value: computed,
       required: computed,
       setLayout: action,
+      errors: computed,
+      warnings: computed,
+      successes: computed,
     });
   }
 
   get required() {
-    return this.rules.some((desc) => !!desc?.required);
+    return this.rules?.some((desc) => !!desc?.required);
   }
 
   set rules(newRules) {
@@ -69,7 +72,7 @@ export class FieldStore {
 
   get rules() {
     const selfRule = this.form.rules[this.name];
-    return Array.isArray(selfRule) ? selfRule : [selfRule];
+    return Array.isArray(selfRule) ? selfRule : undefined;
   }
 
   get value() {
@@ -82,17 +85,17 @@ export class FieldStore {
 
   get errors() {
     const selfErrors = this.form.errors[this.name];
-    return Array.isArray(selfErrors) ? selfErrors : [selfErrors];
+    return Array.isArray(selfErrors) ? selfErrors : undefined;
   }
 
   get warnings() {
     const selfWarnings = this.form.warnings[this.name];
-    return Array.isArray(selfWarnings) ? selfWarnings : [selfWarnings];
+    return Array.isArray(selfWarnings) ? selfWarnings : undefined;
   }
 
   get successes() {
     const selfSuccesses = this.form.successes[this.name];
-    return Array.isArray(selfSuccesses) ? selfSuccesses : [selfSuccesses];
+    return Array.isArray(selfSuccesses) ? selfSuccesses : undefined;
   }
 
   resetStatus() {

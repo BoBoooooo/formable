@@ -39,7 +39,7 @@ export const Field: React.FC<IFieldProps> = observer(
     });
 
     const mergeDisplay = useMemo<DisplayType>(
-      () => fieldStore?.display || form.display,
+      () => fieldStore?.display ?? form.display,
       [form.display, fieldStore?.display]
     );
 
@@ -87,7 +87,9 @@ export const Field: React.FC<IFieldProps> = observer(
         // trigger origin event
         componentProps?.[triggerFlag]?.(e);
         // trigger validate
-        if (validateTrigger === triggerFlag && form.rules[name]) {
+        if (validateTrigger === triggerFlag && form.getFieldInstance(name)?.rules) {
+          console.log('ttt', name);
+
           form.validateFields(name).catch(noop);
         }
       },
@@ -111,7 +113,6 @@ export const Field: React.FC<IFieldProps> = observer(
          * </Field>
          */
         // TODO: getOnlyChild
-
         const mergeProps = (componentProps: any) => ({
           ...componentProps,
           [valuePropName]: fieldStore.value,
@@ -129,34 +130,38 @@ export const Field: React.FC<IFieldProps> = observer(
       return null;
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [name, children, valuePropName, fieldStore?.value, trigger]);
-    return (
-      mergeDisplay !== DisplayTypeEnum.Hidden &&
-      mergeDisplay !== DisplayTypeEnum.None && (
-        <FieldProvider value={fieldStore}>
-          {
-            // render decorator
-            isValidComponent(decorator?.[0]) ? (
-              React.createElement(
-                decorator?.[0] as any,
-                {
-                  label,
-                  // inject decorator props
-                  ...fieldStore?.layout,
-                },
-                controlledChildren
-              )
-            ) : (
-              // default render
-              <>
-                {/* label */}
-                {label && <label>{label}</label>}
-                {/* component */}
-                {controlledChildren}
-              </>
+
+    const Field = useMemo(() => {
+      {
+        const defaultDecorator = (
+          <>
+            {/* label */}
+            {label && <label>{label}</label>}
+            {/* component */}
+            {controlledChildren}
+          </>
+        );
+
+        const outDecorator = decorator?.[0] as React.ComponentType<any>;
+        return isValidComponent(outDecorator)
+          ? React.createElement(
+              outDecorator,
+              {
+                label,
+                // inject decorator props
+                ...fieldStore?.layout,
+              },
+              controlledChildren
             )
-          }
-        </FieldProvider>
-      )
-    );
+          : defaultDecorator;
+      }
+    }, [label, controlledChildren, fieldStore?.layout]);
+
+    // display hidden or none
+    if ([DisplayTypeEnum.Hidden, DisplayTypeEnum.None].includes(mergeDisplay as DisplayTypeEnum)) {
+      return null;
+    }
+
+    return <FieldProvider value={fieldStore}>{Field}</FieldProvider>;
   }
 );

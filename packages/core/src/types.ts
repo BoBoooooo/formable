@@ -1,7 +1,7 @@
-import type { FieldStore, IRule } from '@formable/core';
+import type { FieldStore } from './models/field';
 
-export type { Rule as IRule } from 'async-validator';
-export type { Rules as IRules } from 'async-validator';
+import type { Rule as IRule } from 'async-validator';
+export type { Rules as IRules, Rule as IRule } from 'async-validator';
 
 export type ICondition = IListener['condition'];
 
@@ -38,3 +38,5 @@ export interface IListener {
   condition?: string | boolean | IListenerConditionFunction;
   set: IListenerSet | IListenerSetFunction;
 }
+
+export type NamePath = string | (string | number)[];

@@ -1,18 +1,19 @@
+import * as React from 'react';
+import classNames from 'classnames';
+import { useFieldStatus } from '@formable/react';
+import { observer } from 'mobx-react-lite';
+import { Row, FormItemProps } from 'antd';
+import { ConfigContext } from 'antd/es/config-provider';
+import FormItemLabel from './FormItemLabel';
+import FormItemInput from './FormItemInput';
+import { omit } from '../../utils';
+import type { FormItemStatusContextProps, ValidateStatus } from '../../types';
+import { FormContext, FormItemInputContext } from '../../utils/context';
 import CheckCircleFilled from '@ant-design/icons/CheckCircleFilled';
 import CloseCircleFilled from '@ant-design/icons/CloseCircleFilled';
 import ExclamationCircleFilled from '@ant-design/icons/ExclamationCircleFilled';
 import LoadingOutlined from '@ant-design/icons/LoadingOutlined';
 import useLayoutEffect from 'rc-util/lib/hooks/useLayoutEffect';
-import classNames from 'classnames';
-import * as React from 'react';
-import { Row, FormItemProps } from 'antd';
-import { ConfigContext } from 'antd/es/config-provider';
-import { useFieldStatus } from '@formable/react';
-import { omit } from '../../utils';
-import FormItemLabel from './FormItemLabel';
-import FormItemInput from './FormItemInput';
-import type { FormItemStatusContextProps, ValidateStatus } from '../../types';
-import { FormContext, FormItemInputContext } from '../../utils/context';
 
 const iconMap = {
   success: CheckCircleFilled,
@@ -20,7 +21,7 @@ const iconMap = {
   error: CloseCircleFilled,
   validating: LoadingOutlined,
 };
-export const FormItem = (props: FormItemProps) => {
+export const FormItem = observer((props: FormItemProps) => {
   const {
     prefixCls: customizePrefixCls,
     className,
@@ -51,7 +52,6 @@ export const FormItem = (props: FormItemProps) => {
   const itemRef = React.useRef<HTMLDivElement>(null);
   const debounceErrors = errors.map((e) => e?.message);
   const debounceWarnings = warnings.map((e) => e?.message);
-  // TODO: 需要记录到fieldStore
   const meta = {
     touched,
     validating,
@@ -199,4 +199,4 @@ export const FormItem = (props: FormItemProps) => {
       )}
     </div>
   );
-};
+});

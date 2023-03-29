@@ -10,7 +10,7 @@ import {
   setValueByNamePath,
 } from '../utils/helper';
 import { FieldStore } from './field';
-import { ICondition, IRules, FormDisplayType, DisplayType } from '../types';
+import { ICondition, IRules, FormDisplayType, DisplayType, NamePath } from '../types';
 import { genListenerReaction } from './reaction';
 
 export class FormStore {
@@ -49,15 +49,15 @@ export class FormStore {
   }
 
   // TODO: initData 定义待补充
-  registerField(name: string | any[], initialData: any) {
+  registerField(name: NamePath, initialData: any) {
     if (name) {
       const fieldName = parseArrayNamePathToString(name);
-      let field = this.getFieldInstance(fieldName);
+      let field = this.getFieldInstance(name);
       if (field == null) {
         // 优先读取全局表单默认值
         const intialValue =
-          getValueByNamePath(fieldName, this.initialValues) ?? initialData?.initialValue;
-        console.log('--registerField--', fieldName, intialValue, initialData);
+          getValueByNamePath(name, this.initialValues) ?? initialData?.initialValue;
+        console.log('--registerField--', name, fieldName, intialValue, initialData);
 
         field = new FieldStore(this, {
           name,
@@ -67,7 +67,7 @@ export class FormStore {
         this.fieldMap[fieldName] = field;
 
         // 同步初始值至form.values
-        this.setFieldValue(fieldName, intialValue);
+        this.setFieldValue(name, intialValue);
       }
       return field;
     }
@@ -75,20 +75,20 @@ export class FormStore {
   }
 
   // 获取字段实例
-  getFieldInstance(name: string | any[]) {
+  getFieldInstance(name: NamePath) {
     const fieldName = parseArrayNamePathToString(name);
     return this.fieldMap[fieldName];
   }
 
-  removeField(name: string, preserve = false) {
-    // removeField
-    delete this.fieldMap.name;
+  removeField(name: NamePath, preserve = false) {
+    const fieldName = parseArrayNamePathToString(name);
+    delete this.fieldMap[fieldName];
     if (!preserve) {
-      delete this.values[name];
+      delete this.values[fieldName];
     }
   }
 
-  getFieldValue(name: string) {
+  getFieldValue(name: NamePath) {
     return toJS(getValueByNamePath(name, this.values));
   }
 
@@ -107,7 +107,7 @@ export class FormStore {
   }
 
   @action
-  setFieldValue(name: string, value: any) {
+  setFieldValue(name: NamePath, value: any) {
     const field = this.getFieldInstance(name);
     if (field) {
       if (parseArrayNamePathToString(name).length > 1) {
@@ -118,25 +118,29 @@ export class FormStore {
     }
   }
 
-  setFieldRules(name: string, newRules: any) {
-    if (this.fieldMap[name]) {
-      this.fieldMap[name].rules = newRules;
+  setFieldRules(name: NamePath, newRules: any) {
+    const fieldName = parseArrayNamePathToString(name);
+    if (this.fieldMap[fieldName]) {
+      this.fieldMap[fieldName].rules = newRules;
     }
   }
 
-  setFieldLayout(name: string, newLayout: Record<string, any>) {
-    this.fieldMap[name]?.setLayout(newLayout);
+  setFieldLayout(name: NamePath, newLayout: Record<string, any>) {
+    const fieldName = parseArrayNamePathToString(name);
+    this.fieldMap[fieldName]?.setLayout(newLayout);
   }
 
-  setFieldDisplay(name: string, newDisplay: DisplayType) {
-    if (this.fieldMap[name]) {
-      this.fieldMap[name].display = newDisplay;
+  setFieldDisplay(name: NamePath, newDisplay: DisplayType) {
+    const fieldName = parseArrayNamePathToString(name);
+    if (this.fieldMap[fieldName]) {
+      this.fieldMap[fieldName].display = newDisplay;
     }
   }
 
-  setFieldTouched(name: string, isTouched: boolean) {
-    if (this.fieldMap[name]) {
-      this.fieldMap[name].touched = isTouched;
+  setFieldTouched(name: NamePath, isTouched: boolean) {
+    const fieldName = parseArrayNamePathToString(name);
+    if (this.fieldMap[fieldName]) {
+      this.fieldMap[fieldName].touched = isTouched;
     }
   }
 
@@ -147,16 +151,19 @@ export class FormStore {
    * @param options async-validator options
    * @returns Promise
    */
-  validateFields(name?: string, options?: ValidateOption) {
-    const validateSchema = name ? pick(this.rules, [name]) : this.rules;
-    const validateValues = name ? { [name]: getValueByNamePath(name, this.values) } : this.values;
+  validateFields(name?: NamePath, options?: ValidateOption) {
+    const fieldName = parseArrayNamePathToString(name);
+    const validateSchema = fieldName ? pick(this.rules, [fieldName]) : this.rules;
+    const validateValues = fieldName
+      ? { [fieldName]: getValueByNamePath(fieldName, this.values) }
+      : this.values;
     // schema需要做下转换 暂不支持a[0].b.c的处理，考虑直接平铺字段挨个校验?
     const validator = new Schema(name ? validateSchema : convertToRules(validateSchema));
     console.log('validator', validator);
 
     return new Promise((resolve, reject) => {
       // 单字段校验时触发
-      const fieldInstance = this.getFieldInstance(name);
+      const fieldInstance = this.getFieldInstance(fieldName);
       if (fieldInstance) {
         fieldInstance.validating = true;
       }
@@ -168,24 +175,30 @@ export class FormStore {
         if (errors) {
           // 收集到错误堆栈 & 判断是warning还是error
           console.log('校验失败', errors, fields);
-          Object.keys(fields).forEach((fieldName) => {
-            const validateType = this.fieldMap[fieldName]?.validateStatus;
+          Object.keys(fields).forEach((errorFieldName) => {
+            const validateType = this.fieldMap[errorFieldName]?.validateStatus;
             if (validateType === 'warning') {
-              this.warnings[fieldName] = fields[fieldName];
+              setObserverable(this.warnings, errorFieldName, fields[errorFieldName]);
             }
             if (validateType === 'error') {
-              this.errors[fieldName] = fields[fieldName];
+              setObserverable(this.errors, errorFieldName, fields[errorFieldName]);
             }
           });
-
           // eslint-disable-next-line prefer-promise-reject-errors
           reject({
             fields,
             errors,
           });
         } else {
-          this.errors = {};
-          this.warnings = {};
+          // 校验通过 清空errors warnings
+          // 如果指定校验某字段则只清空当前字段
+          if (fieldName) {
+            delete this.errors[fieldName];
+            delete this.warnings[fieldName];
+          } else {
+            this.errors = {};
+            this.warnings = {};
+          }
           resolve(fields);
         }
       });

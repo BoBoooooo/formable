@@ -1,5 +1,5 @@
 import * as mobx from 'mobx';
-import { IRule } from '../types';
+import { IRule, NamePath } from '../types';
 import { path, assocPath } from 'ramda';
 import type { Rules } from 'async-validator';
 
@@ -47,23 +47,31 @@ export function convertToRules(rules: Record<string, any>): Rules {
 }
 
 // object add observerable key
-export const setObserverable = (target: Record<string, any>, key: string, value: any) => {
+export const setObserverable = (target: Record<string, any>, key: NamePath, value: any) => {
   if (mobx.isObservable(target)) {
-    mobx.set(target, key, value);
+    if (Array.isArray(key)) {
+      // a[0].b.c merge target
+      const newValues = setValueByNamePath(key, value, target) ?? {};
+      mobx.runInAction(() => {
+        target = newValues;
+      });
+    } else {
+      mobx.set(target, key, value);
+    }
   }
 };
 
 // https://lodash.com/docs/4.17.15#toPath
 // https://ramdajs.com/docs/#path
 // https://ramdajs.com/docs/#assocPath
-export const getValueByNamePath = (name: string | string[], value: any) => {
+export const getValueByNamePath = (name: NamePath, value: any) => {
   if (!name) {
     return value;
   }
   return path(parseStringNamePathToArray(name), value);
 };
 
-export const setValueByNamePath = (name: string | string[], value: any, target: any) =>
+export const setValueByNamePath = (name: NamePath, value: any, target: any) =>
   assocPath(parseStringNamePathToArray(name), value, target);
 
 /**
@@ -73,21 +81,22 @@ export const setValueByNamePath = (name: string | string[], value: any, target: 
  * ["a", 0, "b", "c"] => "a[0].b.c"
  * @returns string
  */
-export const parseArrayNamePathToString = (namePathArray: string | string[]) => {
-  if (typeof namePathArray === 'string') {
+export const parseArrayNamePathToString = (namePathArray: NamePath) => {
+  if (!Array.isArray(namePathArray)) {
     return namePathArray;
   }
+
   return namePathArray.reduce((result, key, index) => {
     if (index === 0) {
-      result += key;
+      result += key.toString();
     } else {
-      result += /\d+/.test(key) ? `[${key}]` : `.${key}`;
+      result += /\d+/.test(key.toString()) ? `[${key}]` : `.${key}`;
     }
     return result;
-  }, '');
+  }, '') as string;
 };
 
-export const parseStringNamePathToArray = (namePathString: string | string[]) => {
+export const parseStringNamePathToArray = (namePathString: NamePath) => {
   if (Array.isArray(namePathString)) {
     return namePathString;
   }

@@ -1,11 +1,11 @@
-import { IListener, ValidateStatus } from '@formable/core';
+import { IListener, NamePath, ValidateStatus } from '@formable/core';
 
 export type IFieldProps = Partial<{
   component: string;
   componentProps: any;
   display: 'editable' | 'disabled' | 'preview';
   initialValue: any;
-  name: string;
+  name: NamePath;
   preserve: boolean;
   valuePropName: string;
   validateStatus: ValidateStatus;
