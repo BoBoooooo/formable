@@ -1,7 +1,7 @@
-import { DisplayType, DisplayTypeEnum } from '@formable/core';
+import { DisplayType, DisplayTypeEnum, mergeNamePath as mergeNamePathUtil } from '@formable/core';
 import { observer } from 'mobx-react-lite';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { FieldProvider } from '../../context/field-instance';
+import { FieldProvider, useFieldStatus } from '../../context/field-instance';
 import { useFormInstance } from '../../context/form-instance';
 import { IFieldProps } from '../../types';
 import { isValidComponent, noop } from '../../utils/helper';
@@ -28,8 +28,17 @@ export const Field: React.FC<IFieldProps> = observer(
     getValueFromEvent,
   }) => {
     const form = useFormInstance();
+    const { isArrayField, name: prefixName } = useFieldStatus() ?? {};
 
-    const fieldStore = form.registerField(name, {
+    // field can use single or use in arrayField
+    // when in arrayField, will concat list name path
+    const mergeNamePath = useMemo(
+      () => (isArrayField ? mergeNamePathUtil(prefixName, name) : name),
+      [prefixName, name]
+    );
+
+    // registerField to form
+    const fieldStore = form.registerField(mergeNamePath, {
       initialValue,
       rules,
       required,
@@ -56,16 +65,15 @@ export const Field: React.FC<IFieldProps> = observer(
 
     useEffect(() => {
       if (mergeDisplay === DisplayTypeEnum.None) {
-        form.removeField(name, preserve);
+        form.removeField(mergeNamePath, preserve);
       }
     }, [mergeDisplay, preserve]);
 
     useEffect(() => {
       return () => {
-        form.removeField(name, preserve);
+        form.removeField(mergeNamePath, preserve);
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [name, preserve]);
+    }, [mergeNamePath, preserve]);
 
     /**
      * 0. field is touched
@@ -75,26 +83,23 @@ export const Field: React.FC<IFieldProps> = observer(
     const collectValue = useCallback(
       (e: any, triggerFlag: typeof trigger, componentProps) => {
         // setFieldTouched （onBlur & onChange）
-        if (name) {
-          form.setFieldTouched(name, true);
+        if (mergeNamePath) {
+          form.setFieldTouched(mergeNamePath, true);
         }
         // collect value
         if (trigger === triggerFlag) {
           const v = getValueFromEvent?.(e) ?? e?.target?.value ?? e?.target?.checked ?? e;
-
-          form.setFieldValue(name, v);
+          form.setFieldValue(mergeNamePath, v);
         }
         // trigger origin event
         componentProps?.[triggerFlag]?.(e);
         // trigger validate
-        if (validateTrigger === triggerFlag && form.getFieldInstance(name)?.rules) {
-          console.log('ttt', name);
-
-          form.validateFields(name).catch(noop);
+        if (validateTrigger === triggerFlag && form.getFieldInstance(mergeNamePath)?.rules) {
+          form.validateFields(mergeNamePath).catch(noop);
         }
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [name, trigger, validateTrigger, getValueFromEvent]
+      [mergeNamePath, trigger, validateTrigger, getValueFromEvent]
     );
 
     const controlledChildren = useMemo(() => {
@@ -128,7 +133,6 @@ export const Field: React.FC<IFieldProps> = observer(
         return React.createElement(controlledComponent as any, mergeProps(componentProps));
       }
       return null;
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [name, children, valuePropName, fieldStore?.value, trigger]);
 
     const Field = useMemo(() => {

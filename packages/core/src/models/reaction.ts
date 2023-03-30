@@ -1,17 +1,19 @@
 import { compile } from 'expression-eval';
 import { reaction, IReactionDisposer } from 'mobx';
-import { IListener } from '../types';
+import { IListener, NamePath } from '../types';
 import { mergeRules } from '../utils/helper';
 import { FieldStore } from './field';
 import { FormStore } from './form';
+import { parseArrayNamePathToString } from './../utils/helper';
 
 export const genListenerReaction = (
-  sourceField: string,
+  sourceFieldPath: NamePath,
   watchFields: string[],
   expression: IListener['condition'],
   effect: any,
   formContext: FormStore
 ) => {
+  const sourceField = parseArrayNamePathToString(sourceFieldPath);
   return reaction(
     // watch multiple fields
     () => watchFields.map((field) => formContext.values[field]?.toString()).join(' '),
@@ -21,7 +23,7 @@ export const genListenerReaction = (
       if (typeof expression === 'undefined') {
         isEffect = true;
       } else if (typeof expression === 'function') {
-        isEffect = expression(formContext.fieldMap[sourceField], this);
+        isEffect = expression(formContext.fieldMap[parseArrayNamePathToString(sourceField)], this);
       } else if (typeof expression === 'string') {
         isEffect = compile(expression)(formContext.fieldMap);
       }

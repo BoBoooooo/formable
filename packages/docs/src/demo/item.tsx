@@ -16,6 +16,9 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
         <FormItem label="age" name="age" required initialValue="in">
           <Input />
         </FormItem>
+        <FormItem label="age" name={['arr', 0, 'name']} required initialValue="in">
+          <Input />
+        </FormItem>
         <FormItem component="Input" label="age2" name="age2" required initialValue="in2"></FormItem>
         <FormItem>
           <Button.Group>

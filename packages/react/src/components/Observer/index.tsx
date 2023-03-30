@@ -1,11 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { FormStore } from '@formable/core';
 import { useFormInstance } from '../../context/form-instance';
-
-export interface IFormObserverProps {
-  children?: (form: FormStore['values']) => React.ReactChild;
-}
+import { IFormObserverProps } from '../../types';
 
 export const FormObserver: React.FC<IFormObserverProps> = observer((props) => {
   const form = useFormInstance();

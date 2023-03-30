@@ -35,6 +35,15 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
         </Field>
         <Field
           decorator={[FormItem]}
+          label="测试"
+          name="test"
+          required
+          // initialValue="first"
+        >
+          <Input />
+        </Field>
+        <Field
+          decorator={[FormItem]}
           label="嵌套数组"
           name="arr[0].label"
           // required

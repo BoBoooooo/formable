@@ -22,8 +22,6 @@ export function convertToRules(rules: Record<string, any>): Rules {
     let node: any = result;
     for (let i = 0; i < keys.length; i++) {
       const k = keys[i];
-      console.log('k', k);
-
       if (!node || !node[k]) {
         node[k] = {};
       }
@@ -49,7 +47,7 @@ export function convertToRules(rules: Record<string, any>): Rules {
 // object add observerable key
 export const setObserverable = (target: Record<string, any>, key: NamePath, value: any) => {
   if (mobx.isObservable(target)) {
-    if (Array.isArray(key)) {
+    if (Array.isArray(key) || parseStringNamePathToArray(key).length > 1) {
       // a[0].b.c merge target
       const newValues = setValueByNamePath(key, value, target) ?? {};
       mobx.runInAction(() => {
@@ -79,7 +77,7 @@ export const setValueByNamePath = (name: NamePath, value: any, target: any) =>
  * @param namePathArray
  * @example
  * ["a", 0, "b", "c"] => "a[0].b.c"
- * @returns string
+ * @returns NamePath string
  */
 export const parseArrayNamePathToString = (namePathArray: NamePath) => {
   if (!Array.isArray(namePathArray)) {
@@ -88,14 +86,21 @@ export const parseArrayNamePathToString = (namePathArray: NamePath) => {
 
   return namePathArray.reduce((result, key, index) => {
     if (index === 0) {
-      result += key.toString();
+      result += key?.toString();
     } else {
-      result += /\d+/.test(key.toString()) ? `[${key}]` : `.${key}`;
+      result += /\d+/.test(key?.toString()) ? `[${key}]` : `.${key}`;
     }
     return result;
   }, '') as string;
 };
 
+/**
+ * namePath string to array
+ * @param namePathArray
+ * @example
+ * "a[0].b.c" => ["a", 0, "b", "c"]
+ * @returns NamePath array
+ */
 export const parseStringNamePathToArray = (namePathString: NamePath) => {
   if (Array.isArray(namePathString)) {
     return namePathString;
@@ -105,4 +110,16 @@ export const parseStringNamePathToArray = (namePathString: NamePath) => {
     .replace(/\]/g, '')
     .split('.')
     .map((key: any) => (isNaN(key) ? key : parseInt(key)));
+};
+
+/**
+ * 合并namePath
+ * @param namePath1 namePath1
+ * @param namePath2 namePath2
+ * @returns newNamePath
+ */
+export const mergeNamePath = (namePath1: NamePath, namePath2: NamePath): NamePath => {
+  const parts1 = Array.isArray(namePath1) ? namePath1 : [namePath1];
+  const parts2 = Array.isArray(namePath2) ? namePath2 : [namePath2];
+  return [...parts1, ...parts2];
 };

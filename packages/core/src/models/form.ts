@@ -1,3 +1,4 @@
+import { parseStringNamePathToArray } from './../utils/helper';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { makeObservable, observable, action, toJS, IReactionDisposer } from 'mobx';
 import Schema, { ValidateOption } from 'async-validator';
@@ -57,7 +58,7 @@ export class FormStore {
         // 优先读取全局表单默认值
         const intialValue =
           getValueByNamePath(name, this.initialValues) ?? initialData?.initialValue;
-        console.log('--registerField--', name, fieldName, intialValue, initialData);
+        console.log('--registerField--', name, intialValue, initialData);
 
         field = new FieldStore(this, {
           name,
@@ -110,7 +111,7 @@ export class FormStore {
   setFieldValue(name: NamePath, value: any) {
     const field = this.getFieldInstance(name);
     if (field) {
-      if (parseArrayNamePathToString(name).length > 1) {
+      if (parseStringNamePathToArray(name).length > 1) {
         this.values = setValueByNamePath(name, value, this.values);
       } else {
         setObserverable(this.values, name, value);
@@ -167,41 +168,45 @@ export class FormStore {
       if (fieldInstance) {
         fieldInstance.validating = true;
       }
-      validator.validate(validateValues, { firstFields: true, ...options }, (errors, fields) => {
-        console.log('触发校验', errors, fields);
-        if (fieldInstance) {
-          fieldInstance.validating = false;
-        }
-        if (errors) {
-          // 收集到错误堆栈 & 判断是warning还是error
-          console.log('校验失败', errors, fields);
-          Object.keys(fields).forEach((errorFieldName) => {
-            const validateType = this.fieldMap[errorFieldName]?.validateStatus;
-            if (validateType === 'warning') {
-              setObserverable(this.warnings, errorFieldName, fields[errorFieldName]);
-            }
-            if (validateType === 'error') {
-              setObserverable(this.errors, errorFieldName, fields[errorFieldName]);
-            }
-          });
-          // eslint-disable-next-line prefer-promise-reject-errors
-          reject({
-            fields,
-            errors,
-          });
-        } else {
-          // 校验通过 清空errors warnings
-          // 如果指定校验某字段则只清空当前字段
-          if (fieldName) {
-            delete this.errors[fieldName];
-            delete this.warnings[fieldName];
-          } else {
-            this.errors = {};
-            this.warnings = {};
+      validator.validate(
+        toJS(validateValues),
+        { firstFields: true, ...options },
+        (errors, fields) => {
+          console.log('触发校验', errors, fields);
+          if (fieldInstance) {
+            fieldInstance.validating = false;
           }
-          resolve(fields);
+          if (errors) {
+            // 收集到错误堆栈 & 判断是warning还是error
+            console.log('校验失败', errors, fields);
+            Object.keys(fields).forEach((errorFieldName) => {
+              const validateType = this.fieldMap[errorFieldName]?.validateStatus;
+              if (validateType === 'warning') {
+                setObserverable(this.warnings, errorFieldName, fields[errorFieldName]);
+              }
+              if (validateType === 'error') {
+                setObserverable(this.errors, errorFieldName, fields[errorFieldName]);
+              }
+            });
+            // eslint-disable-next-line prefer-promise-reject-errors
+            reject({
+              fields,
+              errors,
+            });
+          } else {
+            // 校验通过 清空errors warnings
+            // 如果指定校验某字段则只清空当前字段
+            if (fieldName) {
+              delete this.errors[fieldName];
+              delete this.warnings[fieldName];
+            } else {
+              this.errors = {};
+              this.warnings = {};
+            }
+            resolve(fields);
+          }
         }
-      });
+      );
     });
   }
 
