@@ -39,6 +39,8 @@ export class FieldStore {
   // 子Field
   children: any[] = [];
 
+  key = 0;
+
   readonly form: FormStore;
 
   constructor(form: FormStore, data: any) {
@@ -106,6 +108,8 @@ export class FieldStore {
   }
 
   set value(value) {
+    console.log('set');
+
     this.form.setFieldValue(this.name, value);
   }
 
@@ -160,17 +164,18 @@ export class FieldStore {
     const newField = {
       initialValue,
       isListField: true,
-      key: this.children.length,
+      key: this.key++,
     };
-
     if (position >= 0) {
       console.log('指定位置', position);
-
       this.children.splice(position, 0, newField);
     } else {
       console.log('尾部');
       this.children.push(newField);
     }
+    const newValue = this.value;
+    newValue.splice(position, 0, initialValue);
+    this.value = newValue;
 
     // 更新name path
     this.children.forEach((child, index) => {

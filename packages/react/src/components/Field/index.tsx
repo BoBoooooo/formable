@@ -26,8 +26,10 @@ export const Field: React.FC<IFieldProps> = observer(
     rules,
     listeners,
     getValueFromEvent,
+    isListField,
   }) => {
     const form = useFormInstance();
+    // 获取外部 Field类型
     const { isArrayField, name: prefixName } = useFieldStatus() ?? {};
 
     // field can use single or use in arrayField
@@ -71,9 +73,12 @@ export const Field: React.FC<IFieldProps> = observer(
 
     useEffect(() => {
       return () => {
-        form.removeField(mergeNamePath, preserve);
+        // 非listField name 以及dom销毁需要卸载
+        if (!isListField) {
+          form.removeField(mergeNamePath, preserve);
+        }
       };
-    }, [mergeNamePath, preserve]);
+    }, [isListField, mergeNamePath, preserve]);
 
     /**
      * 0. field is touched

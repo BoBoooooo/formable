@@ -19,9 +19,7 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
             {fields.map((field, index) => (
               <>
                 <FormItem
-                  // key={field.key}
-                  initialValue={field.initialValue}
-                  name={field.name}
+                  {...field}
                   decoratorProps={{
                     extra: (
                       <>

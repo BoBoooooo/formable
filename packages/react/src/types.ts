@@ -16,6 +16,7 @@ export type IFieldProps = Partial<{
   validateTrigger: string | string[];
   decorator: [node: any, props?: any];
   listeners: IListener[];
+  isListField: boolean;
   getValueFromEvent: (...args: any[]) => any;
 }>;
 
@@ -31,7 +32,7 @@ export type IArrayFieldProps = Partial<{
   decorator: [node: any, props?: any];
   listeners: IListener[];
   children: (
-    fields: FieldStore[],
+    fields: (Pick<IFieldProps, 'name' | 'isListField' | 'initialValue'> & { key: React.Key })[],
     operations: {
       add: FieldStore['add'];
       remove: FieldStore['remove'];
