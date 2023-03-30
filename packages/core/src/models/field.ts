@@ -108,8 +108,6 @@ export class FieldStore {
   }
 
   set value(value) {
-    console.log('set');
-
     this.form.setFieldValue(this.name, value);
   }
 
