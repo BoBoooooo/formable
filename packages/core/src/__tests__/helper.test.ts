@@ -7,6 +7,7 @@ import {
   setValueByNamePath,
   mergeNamePath,
   mergeRules,
+  switchArrayItemByIndex,
 } from '../utils/helper';
 import * as mobx from 'mobx';
 
@@ -157,5 +158,26 @@ describe('mergeNamePath', () => {
     expect(mergeNamePath(['foo'], ['bar'])).toEqual(['foo', 'bar']);
     expect(mergeNamePath('foo', ['bar'])).toEqual(['foo', 'bar']);
     expect(mergeNamePath('foo', 'bar')).toEqual(['foo', 'bar']);
+  });
+});
+
+describe('switchArrayItemByIndex', () => {
+  test('should switch elements at two specified indexes', () => {
+    const arr = [1, 2, 3, 4, 5];
+    const result = switchArrayItemByIndex(arr, 1, 3);
+    expect(result).toEqual([1, 4, 3, 2, 5]);
+  });
+
+  test('should throw an error if index is out of range', () => {
+    const arr = [1, 2, 3];
+    expect(() => switchArrayItemByIndex(arr, 0, 3)).toThrow();
+    expect(() => switchArrayItemByIndex(arr, -1, 1)).toThrow();
+    expect(() => switchArrayItemByIndex(arr, 2, 4)).toThrow();
+  });
+
+  test('should not mutate the original array', () => {
+    const arr = [1, 2, 3, 4, 5];
+    switchArrayItemByIndex(arr, 1, 3);
+    expect(arr).toEqual([1, 2, 3, 4, 5]);
   });
 });

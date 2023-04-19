@@ -1,4 +1,4 @@
-import { parseArrayNamePathToString } from './../utils/helper';
+import { parseArrayNamePathToString, switchArrayItemByIndex } from './../utils/helper';
 import { makeObservable, observable, action, computed } from 'mobx';
 import { FieldDisplayType, ValidateStatus, NamePath, IRegisterFieldParams } from '../types';
 import { mergeRules, setObserverable } from '../utils/helper';
@@ -180,7 +180,7 @@ export class FieldStore {
     this.children.splice(index, 0, newField);
 
     const newValue = this.value;
-    newValue.splice(index, 0, initialValue);
+    newValue?.splice(index, 0, initialValue);
     this.value = newValue;
 
     // 更新name path
@@ -200,11 +200,8 @@ export class FieldStore {
   };
 
   move = (from: number, to: number) => {
-    if (to >= this.children.length) {
-      throw new Error('[Formable]: out of range !');
-    }
-    [this.children[from], this.children[to]] = [this.children[to], this.children[from]];
-
+    this.children = switchArrayItemByIndex(this.children, from, to);
+    this.value = switchArrayItemByIndex(this.value, from, to);
     // 更新name path
     this.children.forEach((child, index) => {
       child.name = [index];

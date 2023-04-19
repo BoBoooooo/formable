@@ -45,6 +45,9 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
       <Button type="primary" htmlType="submit">
         Submit
       </Button>
+      <Button type="primary" onClick={() => form.getFieldInstance('items').move(0, 1)}>
+        交换数组顺序
+      </Button>
     </Form>
   );
 };

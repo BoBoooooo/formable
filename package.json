@@ -14,6 +14,7 @@
     "build": "lerna run build",
     "lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --color --fix",
     "test": "NODE_OPTIONS=--unhandled-rejections=warn jest --coverage",
+    "test:watch": "NODE_OPTIONS=--unhandled-rejections=warn jest --coverage --watch",
     "publish": "lerna publish",
     "publish:beta": "lerna publish --canary --pre-dist-tag=beta --preid=beta --yes",
     "log": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0"

@@ -155,3 +155,21 @@ export const mergeNamePath = (namePath1: NamePath, namePath2: NamePath): NamePat
   const parts2 = Array.isArray(namePath2) ? namePath2 : [namePath2];
   return [...parts1, ...parts2];
 };
+
+/**
+ * 互换数组元素
+ * @param target array
+ * @param from fromIndex
+ * @param to toIndex
+ * @returns newArray
+ */
+export const switchArrayItemByIndex = <T>(target: T[], from: number, to: number): T[] => {
+  if (from < 0 || from >= target.length || to < 0 || to >= target.length) {
+    throw new Error(
+      `[Formable]: Index out of range: from=${from}, to=${to}, length=${target.length}`
+    );
+  }
+  const newValue = [...target];
+  [newValue[from], newValue[to]] = [newValue[to], newValue[from]];
+  return newValue;
+};
