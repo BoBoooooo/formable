@@ -20,15 +20,11 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
               <>
                 <FormItem
                   {...field}
-                  decoratorProps={{
-                    extra: (
-                      <>
-                        <Button type="link" onClick={() => remove(index)}>
-                          删除{field.name} {field.initialValue}
-                        </Button>
-                      </>
-                    ),
-                  }}
+                  extra={
+                    <Button type="link" onClick={() => remove(index)}>
+                      删除{field.name} {field.initialValue}
+                    </Button>
+                  }
                   rules={[{ required: true }]}
                 >
                   <Input placeholder="Enter a value" />

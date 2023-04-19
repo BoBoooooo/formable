@@ -1,4 +1,5 @@
 import type { FieldStore, FormStore, IListener, NamePath, ValidateStatus } from '@formable/core';
+import type { FormItemProps } from 'antd';
 
 export type IFieldProps = Partial<{
   component: string;
@@ -40,9 +41,7 @@ export type IArrayFieldProps = Partial<{
   ) => React.ReactChild | React.ReactNode;
 }>;
 
-export type IFormItemProps = Omit<IFieldProps, 'decorator'> & {
-  decoratorProps?: any;
-};
+export type IFormItemProps = Omit<IFieldProps, 'decorator'> & FormItemProps;
 
 export interface IFormObserverProps {
   children?: (form: FormStore['values']) => React.ReactChild;
