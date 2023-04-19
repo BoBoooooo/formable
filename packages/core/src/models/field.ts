@@ -7,9 +7,7 @@ import { ReactionQueue } from './reaction';
 
 export class FieldStore {
   /**
-   * @desc fieldStore中name 转为字符串
-   * @example
-   * a.b.c  a  a[0].b.c
+   * @desc namePath
    */
   name: NamePath;
 

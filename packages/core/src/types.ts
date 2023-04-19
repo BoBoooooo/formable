@@ -1,5 +1,5 @@
 import type { Rule as IRule } from 'async-validator';
-import { FieldStore } from './models';
+import { FieldStore, FormStore } from './models';
 export type { Rules as IRules, Rule as IRule } from 'async-validator';
 
 export type ICondition = IListener['condition'];
@@ -39,6 +39,12 @@ export interface IListener {
 }
 
 export type NamePath = string | (string | number)[];
+
+export type IRegisterFormParams = {
+  initialValues?: Record<string, any>;
+  values?: Record<string, any>;
+  components?: FormStore['components'];
+};
 
 export type IRegisterFieldParams = Partial<
   Pick<

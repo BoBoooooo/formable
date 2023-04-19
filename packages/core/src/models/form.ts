@@ -11,7 +11,14 @@ import {
   setValueByNamePath,
 } from '../utils/helper';
 import { FieldStore } from './field';
-import { ICondition, IRules, FormDisplayType, FieldDisplayType, NamePath } from '../types';
+import {
+  ICondition,
+  IRules,
+  FormDisplayType,
+  FieldDisplayType,
+  NamePath,
+  IRegisterFormParams,
+} from '../types';
 import { genListenerReaction } from './reaction';
 import { IRegisterFieldParams } from '../types';
 
@@ -38,7 +45,7 @@ export class FormStore {
 
   components: Record<string, React.FunctionComponent<any> | React.ComponentClass<any, any>>;
 
-  constructor(options?: any) {
+  constructor(options?: IRegisterFormParams) {
     this.initialValues = options?.initialValues;
     this.values = this.initialValues || {};
     this.components = options?.components;
@@ -250,6 +257,6 @@ export class FormStore {
   }
 }
 
-export const createForm = (options?: any) => {
+export const createForm = (options?: IRegisterFormParams) => {
   return new FormStore(options);
 };

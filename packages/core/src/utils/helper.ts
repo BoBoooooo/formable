@@ -78,20 +78,16 @@ export const setObserverable = (
   if (mobx.isObservable(target)) {
     // force use name path key
     const useStringNamePathAsKey = typeof key === 'string' && flat;
-    if (useStringNamePathAsKey) {
-      mobx.set(target, key, value);
-      return;
-    }
-
-    if (Array.isArray(key) || parseStringNamePathToArray(key).length > 1) {
-      // a[0].b.c merge target
-      const newValues = setValueByNamePath(key, value, target) ?? {};
-      mobx.runInAction(() => {
-        target = newValues;
-      });
-    } else {
-      mobx.set(target, key, value);
-    }
+    const isMultiplePath = Array.isArray(key) || parseStringNamePathToArray(key).length > 1;
+    mobx.runInAction(() => {
+      if (useStringNamePathAsKey || !isMultiplePath) {
+        mobx.set(target, key, value);
+      } else {
+        // a[0].b.c merge target
+        const newValues = setValueByNamePath(key, value, target) ?? {};
+        mobx.set(target, mobx.observable(newValues));
+      }
+    });
   }
 };
 
