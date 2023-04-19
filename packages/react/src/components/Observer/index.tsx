@@ -1,7 +1,7 @@
 import React from 'react';
+import { IFormObserverProps } from '../../types';
 import { observer } from 'mobx-react-lite';
 import { useFormInstance } from '../../context/form-instance';
-import { IFormObserverProps } from '../../types';
 
 export const FormObserver: React.FC<IFormObserverProps> = observer((props) => {
   const form = useFormInstance();

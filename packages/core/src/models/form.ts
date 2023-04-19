@@ -1,6 +1,6 @@
 import { parseStringNamePathToArray } from './../utils/helper';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { makeObservable, observable, action, toJS, IReactionDisposer } from 'mobx';
+import { makeObservable, observable, action, toJS } from 'mobx';
 import Schema, { ValidateOption } from 'async-validator';
 import pick from 'lodash/pick';
 import {
@@ -11,8 +11,9 @@ import {
   setValueByNamePath,
 } from '../utils/helper';
 import { FieldStore } from './field';
-import { ICondition, IRules, FormDisplayType, DisplayType, NamePath } from '../types';
+import { ICondition, IRules, FormDisplayType, FieldDisplayType, NamePath } from '../types';
 import { genListenerReaction } from './reaction';
+import { IRegisterFieldParams } from '../types';
 
 export class FormStore {
   @observable name: string;
@@ -49,8 +50,7 @@ export class FormStore {
     this.onSubmit = initialData?.onSubmit;
   }
 
-  // TODO: initData 定义待补充
-  registerField(name: NamePath, initialData: any) {
+  registerField(name: NamePath, initialData: IRegisterFieldParams) {
     if (name) {
       const fieldName = parseArrayNamePathToString(name);
       let field = this.getFieldInstance(name);
@@ -131,7 +131,7 @@ export class FormStore {
     this.fieldMap[fieldName]?.setLayout(newLayout);
   }
 
-  setFieldDisplay(name: NamePath, newDisplay: DisplayType) {
+  setFieldDisplay(name: NamePath, newDisplay: FieldDisplayType) {
     const fieldName = parseArrayNamePathToString(name);
     if (this.fieldMap[fieldName]) {
       this.fieldMap[fieldName].display = newDisplay;
@@ -154,12 +154,12 @@ export class FormStore {
    */
   validateFields(name?: NamePath, options?: ValidateOption) {
     const fieldName = parseArrayNamePathToString(name);
-    const validateSchema = fieldName ? pick(this.rules, [fieldName]) : this.rules;
+    const validateSchema = fieldName ? pick(this.rules, [fieldName]) : convertToRules(this.rules);
     const validateValues = fieldName
       ? { [fieldName]: getValueByNamePath(fieldName, this.values) }
       : this.values;
-    // schema需要做下转换 暂不支持a[0].b.c的处理，考虑直接平铺字段挨个校验?
-    const validator = new Schema(name ? validateSchema : convertToRules(validateSchema));
+    // schema需要做下转换 TODO: 暂不支持a[0].b.c的处理，考虑直接平铺字段挨个校验?
+    const validator = new Schema(validateSchema);
     console.log('validator', validator);
 
     return new Promise((resolve, reject) => {

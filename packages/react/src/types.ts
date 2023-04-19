@@ -1,10 +1,17 @@
-import type { FieldStore, FormStore, IListener, NamePath, ValidateStatus } from '@formable/core';
+import type {
+  FieldStore,
+  FormStore,
+  IListener,
+  NamePath,
+  ValidateStatus,
+  FieldDisplayType,
+} from '@formable/core';
 import type { FormItemProps } from 'antd';
 
 export type IFieldProps = Partial<{
   component: string;
   componentProps: any;
-  display: 'editable' | 'disabled' | 'preview';
+  display: FieldDisplayType;
   initialValue: any;
   name: NamePath;
   preserve: boolean;
@@ -22,7 +29,7 @@ export type IFieldProps = Partial<{
 }>;
 
 export type IArrayFieldProps = Partial<{
-  display: 'editable' | 'disabled' | 'preview';
+  display: FieldDisplayType;
   initialValue: any;
   name: NamePath;
   preserve: boolean;

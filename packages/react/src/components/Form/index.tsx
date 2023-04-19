@@ -1,6 +1,6 @@
-import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { FormStore } from '@formable/core';
+import type { FormStore } from '@formable/core';
+import { observer } from 'mobx-react-lite';
 import { FormGlobalProvider } from '../../context/form-instance';
 
 export const FormProvider: React.FC<{

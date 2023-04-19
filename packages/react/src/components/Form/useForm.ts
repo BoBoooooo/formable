@@ -3,7 +3,7 @@ import React from 'react';
 
 // 待拓展
 // type ExposedAPI = Pick<FormStore, "submit" | "initialize">;
-
+// TODO: TS待补充
 export function useForm(options?: any, initForm?: FormStore): [FormStore] {
   const formRef = React.useRef<FormStore>(initForm);
   if (!formRef.current) {

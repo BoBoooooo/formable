@@ -1,15 +1,14 @@
-import type { FieldStore } from './models/field';
-
 import type { Rule as IRule } from 'async-validator';
+import { FieldStore } from './models';
 export type { Rules as IRules, Rule as IRule } from 'async-validator';
 
 export type ICondition = IListener['condition'];
 
-export type DisplayType = 'edit' | 'disabled' | 'preview' | 'hidden' | 'none' | '';
+export type FieldDisplayType = 'edit' | 'disabled' | 'preview' | 'hidden' | 'none' | '';
 export type ValidateStatus = 'success' | 'warning' | 'error' | 'validating';
 export type FormDisplayType = 'edit' | 'disabled' | 'preview' | '';
 
-export enum DisplayTypeEnum {
+export enum FieldDisplayTypeEnum {
   Editable = 'editable',
   Disabled = 'disabled',
   Preview = 'preview',
@@ -23,7 +22,7 @@ export type IListenerSet = {
   value?: any;
   required?: boolean;
   rules?: IRule;
-  display?: DisplayType;
+  display?: FieldDisplayType;
 };
 
 export type IListenerConditionFunction = (
@@ -40,3 +39,22 @@ export interface IListener {
 }
 
 export type NamePath = string | (string | number)[];
+
+export type IRegisterFieldParams = Partial<
+  Pick<
+    FieldStore,
+    | 'name'
+    | 'initialValue'
+    | 'rules'
+    | 'display'
+    | 'required'
+    | 'isListField'
+    | 'validateStatus'
+    | 'layout'
+  > & {
+    prefixName: NamePath;
+    // 是否数组字段
+    isArrayField: boolean;
+    listeners: IListener[];
+  }
+>;

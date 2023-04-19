@@ -1,9 +1,10 @@
-import { DisplayType, DisplayTypeEnum, mergeNamePath as mergeNamePathUtil } from '@formable/core';
-import { observer } from 'mobx-react-lite';
 import React, { useCallback, useEffect, useMemo } from 'react';
+import { observer } from 'mobx-react-lite';
+import { mergeNamePath as mergeNamePathUtil } from '@formable/core';
+import { IFieldProps } from '../../types';
+import { FieldDisplayType, FieldDisplayTypeEnum } from '@formable/core';
 import { FieldProvider, useFieldStatus } from '../../context/field-instance';
 import { useFormInstance } from '../../context/form-instance';
-import { IFieldProps } from '../../types';
 import { isValidComponent, noop } from '../../utils/helper';
 import { useDeepCompareEffect } from '../../utils/useDeepCompareEffect';
 
@@ -47,9 +48,11 @@ export const Field: React.FC<IFieldProps> = observer(
       display,
       listeners,
       validateStatus,
+      isListField,
+      prefixName,
     });
 
-    const mergeDisplay = useMemo<DisplayType>(
+    const mergeDisplay = useMemo<FieldDisplayType>(
       () => fieldStore?.display ?? form.display,
       [form.display, fieldStore?.display]
     );
@@ -66,7 +69,7 @@ export const Field: React.FC<IFieldProps> = observer(
     }, [decorator, label]);
 
     useEffect(() => {
-      if (mergeDisplay === DisplayTypeEnum.None) {
+      if (mergeDisplay === FieldDisplayTypeEnum.None) {
         form.removeField(mergeNamePath, preserve);
       }
     }, [mergeDisplay, preserve]);
@@ -167,7 +170,11 @@ export const Field: React.FC<IFieldProps> = observer(
     }, [label, controlledChildren, fieldStore?.layout]);
 
     // display hidden or none
-    if ([DisplayTypeEnum.Hidden, DisplayTypeEnum.None].includes(mergeDisplay as DisplayTypeEnum)) {
+    if (
+      [FieldDisplayTypeEnum.Hidden, FieldDisplayTypeEnum.None].includes(
+        mergeDisplay as FieldDisplayTypeEnum
+      )
+    ) {
       return null;
     }
 

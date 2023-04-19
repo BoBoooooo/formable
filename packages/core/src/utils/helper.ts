@@ -3,7 +3,13 @@ import { IRule, NamePath } from '../types';
 import { path, assocPath } from 'ramda';
 import type { Rules } from 'async-validator';
 
-export const mergeRules = (rules: IRule, required: boolean) => {
+export const mergeRules = (
+  rules: IRule,
+  required: boolean,
+  isListField?: boolean,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  wrapperRules?: IRule
+) => {
   // 校验 rules required拼接
   const r = Array.isArray(rules) ? rules : [];
   const requiredProp = required;
@@ -12,6 +18,18 @@ export const mergeRules = (rules: IRule, required: boolean) => {
       required: true,
     });
   }
+  if (isListField) {
+    // if (wrapperRules) {
+    //   wrapperRules;
+    // }
+    // const rules = rules.map((rule: IRule) => {
+    //   return {
+    //     type: 'array',
+    //     defaultField: { type: 'object', fields: {} },
+    //   };
+    // });
+  }
+
   return r;
 };
 
@@ -44,9 +62,27 @@ export function convertToRules(rules: Record<string, any>): Rules {
   return result;
 }
 
-// object add observerable key
-export const setObserverable = (target: Record<string, any>, key: NamePath, value: any) => {
+/**
+ * object add observerable key
+ * @param target
+ * @param key
+ * @param value
+ * @param flat namePath a[0].b.c 不做转化，默认使用其作为字符串
+ */
+export const setObserverable = (
+  target: Record<string, any>,
+  key: NamePath,
+  value: any,
+  flat = false
+) => {
   if (mobx.isObservable(target)) {
+    // force use name path key
+    const useStringNamePathAsKey = typeof key === 'string' && flat;
+    if (useStringNamePathAsKey) {
+      mobx.set(target, key, value);
+      return;
+    }
+
     if (Array.isArray(key) || parseStringNamePathToArray(key).length > 1) {
       // a[0].b.c merge target
       const newValues = setValueByNamePath(key, value, target) ?? {};

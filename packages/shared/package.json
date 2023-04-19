@@ -1,5 +1,5 @@
 {
-    "name": "@formable/react",
+    "name": "@formable/shared",
     "version": "0.1.0",
     "author": "BoBo<boboooooo159@gmail.com>",
     "license": "MIT",
@@ -19,13 +19,6 @@
         "lib",
         "esm"
     ],
-    "dependencies": {
-        "@formable/core": "^0.1.0",
-        "@formable/shared": "^0.1.0",
-        "mobx-react-lite": "^3.4.0",
-        "lodash.isequal": "^4.5.0",
-        "lodash.pick": "^4.4.0"
-    },
     "devDependencies": {
         "@types/lodash.isequal": "^4.5.6",
         "@types/lodash.pick": "^4.4.7"

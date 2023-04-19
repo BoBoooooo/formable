@@ -1,9 +1,9 @@
-import { DisplayType, DisplayTypeEnum } from '@formable/core';
-import { observer } from 'mobx-react-lite';
 import React, { useEffect, useMemo } from 'react';
+import { observer } from 'mobx-react-lite';
+import { IArrayFieldProps } from '../../types';
+import { FieldDisplayType, FieldDisplayTypeEnum } from '@formable/core';
 import { FieldProvider } from '../../context/field-instance';
 import { useFormInstance } from '../../context/form-instance';
-import { IArrayFieldProps } from '../../types';
 import { isValidComponent } from '../../utils/helper';
 import { useDeepCompareEffect } from '../../utils/useDeepCompareEffect';
 import pick from 'lodash.pick';
@@ -27,7 +27,6 @@ export const ArrayField: React.FC<IArrayFieldProps> = observer(
     const form = useFormInstance();
 
     const fieldStore = form.registerField(name, {
-      // FIXME: 数组需要默认值
       initialValue: initialValue ?? [],
       rules,
       required,
@@ -49,7 +48,7 @@ export const ArrayField: React.FC<IArrayFieldProps> = observer(
         ? children(fieldStore.children, pick(fieldStore, ['add', 'remove', 'move']))
         : children;
 
-    const mergeDisplay = useMemo<DisplayType>(
+    const mergeDisplay = useMemo<FieldDisplayType>(
       () => fieldStore?.display ?? form.display,
       [form.display, fieldStore?.display]
     );
@@ -66,7 +65,7 @@ export const ArrayField: React.FC<IArrayFieldProps> = observer(
     }, [decorator, label]);
 
     useEffect(() => {
-      if (mergeDisplay === DisplayTypeEnum.None) {
+      if (mergeDisplay === FieldDisplayTypeEnum.None) {
         form.removeField(name, preserve);
       }
     }, [mergeDisplay, preserve]);
@@ -104,7 +103,11 @@ export const ArrayField: React.FC<IArrayFieldProps> = observer(
     }, [label, fieldStore?.layout, childrenDynamic]);
 
     // display hidden or none
-    if ([DisplayTypeEnum.Hidden, DisplayTypeEnum.None].includes(mergeDisplay as DisplayTypeEnum)) {
+    if (
+      [FieldDisplayTypeEnum.Hidden, FieldDisplayTypeEnum.None].includes(
+        mergeDisplay as FieldDisplayTypeEnum
+      )
+    ) {
       return null;
     }
 

@@ -1,6 +1,6 @@
 import { parseArrayNamePathToString } from './../utils/helper';
 import { makeObservable, observable, action, computed } from 'mobx';
-import { DisplayType, ValidateStatus, NamePath } from '../types';
+import { FieldDisplayType, ValidateStatus, NamePath, IRegisterFieldParams } from '../types';
 import { mergeRules, setObserverable } from '../utils/helper';
 import { FormStore } from './form';
 import { ReactionQueue } from './reaction';
@@ -19,7 +19,7 @@ export class FieldStore {
 
   validating: boolean;
 
-  display: DisplayType = 'edit';
+  display: FieldDisplayType = 'edit';
 
   layout: Record<string, any>;
 
@@ -36,6 +36,9 @@ export class FieldStore {
   // 是否为ArrayField 子Field
   isListField: boolean;
 
+  // 上层ArrayField Name
+  prefixName: string;
+
   // 子Field
   children: any[] = [];
 
@@ -43,12 +46,16 @@ export class FieldStore {
 
   readonly form: FormStore;
 
-  constructor(form: FormStore, data: any) {
+  constructor(form: FormStore, data: IRegisterFieldParams) {
     this.form = form;
     this.name = data.name;
     this.initialValue = data.initialValue;
     this.validateStatus = data.validateStatus ?? 'error';
     this.display = data.display ?? 'edit';
+
+    this.isListField = !!data.isListField;
+    this.prefixName = parseArrayNamePathToString(data.prefixName);
+
     this.initialStatus = {
       name: data.name,
       initialValue: this.initialValue,
@@ -56,8 +63,15 @@ export class FieldStore {
     };
     // item rule register to form
     if (data.rules || data.required) {
-      const localRules = mergeRules(data.rules, data.required);
-      setObserverable(this.form.rules, this.name, localRules);
+      // isListField需要将规则注入到arrayField
+      const localRules = mergeRules(
+        data.rules,
+        data.required,
+        this.isListField,
+        this.form.rules[this.prefixName]
+      );
+      setObserverable(this.form.rules, parseArrayNamePathToString(this.name), localRules, true);
+
       this.initialStatus.rules = localRules;
     }
 
@@ -164,15 +178,11 @@ export class FieldStore {
       isListField: true,
       key: this.key++,
     };
-    if (position >= 0) {
-      console.log('指定位置', position);
-      this.children.splice(position, 0, newField);
-    } else {
-      console.log('尾部');
-      this.children.push(newField);
-    }
+    const index = position >= 0 ? position : this.children.length;
+    this.children.splice(index, 0, newField);
+
     const newValue = this.value;
-    newValue.splice(position, 0, initialValue);
+    newValue.splice(index, 0, initialValue);
     this.value = newValue;
 
     // 更新name path
