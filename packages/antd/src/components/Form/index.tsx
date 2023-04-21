@@ -9,6 +9,7 @@ export interface FormableProps<Values = any>
   extends Omit<FormProps, 'form' | 'onFinsih' | 'onFinsihFailed'> {
   form?: FormStore;
   onSubmit?: (values: Values) => void;
+  onValuesChange?: (values: Values) => void;
   component?: JSXComponent;
 }
 
@@ -17,6 +18,8 @@ export const Form: React.FC<FormableProps> = ({
   component = 'form',
   initialValues,
   onSubmit,
+  onValuesChange,
+  children,
   ...restProps
 }) => {
   const [form] = useForm({ initialValues }, outForm);
@@ -25,9 +28,10 @@ export const Form: React.FC<FormableProps> = ({
     // onSubmit同步
     form.syncInitialize({
       onSubmit,
+      onValuesChange,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onSubmit]);
+  }, [onSubmit, onValuesChange]);
 
   return (
     <FormProvider form={form}>
@@ -41,7 +45,7 @@ export const Form: React.FC<FormableProps> = ({
               form.submit();
             },
           },
-          restProps.children
+          children
         )}
       </FormLayout>
     </FormProvider>

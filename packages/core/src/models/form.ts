@@ -1,6 +1,6 @@
 import { parseStringNamePathToArray, toArray } from './../utils/helper';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { makeObservable, observable, action, toJS } from 'mobx';
+import { makeObservable, observable, action, toJS, autorun } from 'mobx';
 import Schema, { ValidateOption } from 'async-validator';
 import pick from 'lodash/pick';
 import {
@@ -44,6 +44,8 @@ export class FormStore {
 
   onSubmit: any;
 
+  @observable onValuesChange: (formValue: Record<string, any>) => void;
+
   components: Record<string, React.FunctionComponent<any> | React.ComponentClass<any, any>>;
 
   constructor(options?: IRegisterFormParams) {
@@ -51,11 +53,14 @@ export class FormStore {
     this.values = this.initialValues || {};
     this.components = options?.components;
     makeObservable(this);
+    // values变化触发onValuesChange
+    autorun(() => this.onValuesChange?.(toJS(this.values)));
   }
 
   // 更新部分数据
   syncInitialize(initialData?: any) {
     this.onSubmit = initialData?.onSubmit;
+    this.onValuesChange = initialData.onValuesChange;
   }
 
   registerField(name: NamePath, initialData: IRegisterFieldParams) {

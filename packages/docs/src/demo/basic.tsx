@@ -12,6 +12,7 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
       bool state:
       {bool ? 'true' : 'false'}
       <Form
+        onValuesChange={console.log}
         form={form}
         layout="horizontal"
         onSubmit={console.log}
