@@ -50,7 +50,7 @@ export class FieldStore {
     this.initialValue = data.initialValue;
     this.validateStatus = data.validateStatus ?? 'error';
     this.display = data.display ?? 'edit';
-
+    this.isArrayField = !!data.isArrayField;
     this.isListField = !!data.isListField;
     this.prefixName = parseArrayNamePathToString(data.prefixName);
 
@@ -77,8 +77,6 @@ export class FieldStore {
     if (Array.isArray(data.listeners) && data.listeners.length) {
       this.reactionQueue = new ReactionQueue(this, data.listeners);
     }
-
-    this.isArrayField = data.isArrayField;
 
     // 数组类型有初始值时需要初始化
     if (this.isArrayField && this.initialValue.length) {

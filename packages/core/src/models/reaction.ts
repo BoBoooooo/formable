@@ -6,6 +6,14 @@ import { FieldStore } from './field';
 import { FormStore } from './form';
 import { parseArrayNamePathToString } from './../utils/helper';
 
+/**
+ * field 联动
+ * @param sourceFieldPath 原字段
+ * @param watchFields 监听字段
+ * @param expression 触发条件
+ * @param effect 响应行为
+ * @param formContext 表单上下文
+ */
 export const genListenerReaction = (
   sourceFieldPath: NamePath,
   watchFields: string[],
@@ -28,8 +36,6 @@ export const genListenerReaction = (
         isEffect = compile(expression)(formContext.fieldMap);
       }
 
-      console.log('triggerAction', isEffect);
-
       const effectIsObjectType = Object.prototype.toString.call(effect) === '[object Object]';
       if (isEffect) {
         if (typeof effect === 'function') {
@@ -51,7 +57,7 @@ export const genListenerReaction = (
         } else {
           throw new Error('[Formable]: action should be typeof `function` or `object`');
         }
-        // TODO: 恢复初始状态 ?
+        // set为对象时且触发条件为false时 自动还原状态
       } else if (formContext.fieldMap[sourceField] && effectIsObjectType) {
         formContext.fieldMap[sourceField].resetStatus();
       }

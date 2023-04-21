@@ -1,4 +1,4 @@
-import { parseStringNamePathToArray } from './../utils/helper';
+import { parseStringNamePathToArray, toArray } from './../utils/helper';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { makeObservable, observable, action, toJS } from 'mobx';
 import Schema, { ValidateOption } from 'async-validator';
@@ -21,6 +21,7 @@ import {
 } from '../types';
 import { genListenerReaction } from './reaction';
 import { IRegisterFieldParams } from '../types';
+import { logRegisterInfo } from '../utils/log';
 
 export class FormStore {
   @observable name: string;
@@ -62,20 +63,31 @@ export class FormStore {
       const fieldName = parseArrayNamePathToString(name);
       let field = this.getFieldInstance(name);
       if (field == null) {
-        // 优先读取全局表单默认值
-        const intialValue =
-          getValueByNamePath(name, this.initialValues) ?? initialData?.initialValue;
-        console.log('--registerField--', name, intialValue, initialData);
+        const { initialValue, isListField } = initialData ?? {};
+        let initialValueComputed = initialValue;
+        const arrayNamePath = toArray(name);
 
-        field = new FieldStore(this, {
+        // FIXME: 待优化
+        // list field情况 数组对象时
+        // [items, 0, name] 情况时每一行的新增初始值读取 newRecord[name]
+        if (isListField && arrayNamePath.length === 3) {
+          initialValueComputed = getValueByNamePath(toArray(name).slice(-1), initialValue);
+        } else {
+          // 优先读取全局表单默认值
+          initialValueComputed = getValueByNamePath(name, this.initialValues) ?? initialValue;
+        }
+
+        const fieldParams = {
           name,
           ...initialData,
-          initialValue: intialValue,
-        });
-        this.fieldMap[fieldName] = field;
+          initialValue: initialValueComputed,
+        };
+        logRegisterInfo(fieldParams);
 
+        field = new FieldStore(this, fieldParams);
+        this.fieldMap[fieldName] = field;
         // 同步初始值至form.values
-        this.setFieldValue(name, intialValue);
+        this.setFieldValue(name, initialValueComputed);
       }
       return field;
     }

@@ -1,7 +1,13 @@
 import * as mobx from 'mobx';
 import { IRule, NamePath } from '../types';
 import { path, assocPath } from 'ramda';
-import type { Rules } from 'async-validator';
+
+export const toArray = <T>(value: T | T[]): T[] => {
+  if (value === undefined) {
+    return [];
+  }
+  return Array.isArray(value) ? value : [value];
+};
 
 export const mergeRules = (
   rules: IRule,
@@ -96,6 +102,10 @@ export const setObserverable = (
 // https://ramdajs.com/docs/#assocPath
 export const getValueByNamePath = (name: NamePath, value: any) => {
   if (!name) {
+    return value;
+  }
+  // 非复杂数据结构直接return
+  if (typeof value !== 'object') {
     return value;
   }
   return path(parseStringNamePathToArray(name), value);

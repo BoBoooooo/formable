@@ -8,6 +8,8 @@ import type {
 } from '@formable/core';
 import type { FormItemProps } from 'antd';
 
+type ComputedAntdFormProps = Omit<FormItemProps, 'rules'>;
+
 export type IFieldProps = Partial<{
   component: string;
   componentProps: any;
@@ -34,6 +36,7 @@ export type IArrayFieldProps = Partial<{
   name: NamePath;
   preserve: boolean;
   validateStatus: ValidateStatus;
+  validateTrigger: string | string[];
   label: React.ReactNode;
   rules: any[];
   required: boolean;
@@ -48,7 +51,8 @@ export type IArrayFieldProps = Partial<{
   ) => React.ReactChild | React.ReactNode;
 }>;
 
-export type IFormItemProps = Omit<IFieldProps, 'decorator'> & FormItemProps;
+export type IFormItemProps = Omit<IFieldProps, 'decorator'> & ComputedAntdFormProps;
+export type IFormListProps = Omit<IFieldProps, 'decorator'> & ComputedAntdFormProps;
 
 export interface IFormObserverProps {
   children?: (form: FormStore['values']) => React.ReactChild;

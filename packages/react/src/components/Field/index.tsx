@@ -110,6 +110,7 @@ export const Field: React.FC<IFieldProps> = observer(
       [mergeNamePath, trigger, validateTrigger, getValueFromEvent]
     );
 
+    // 受控组件
     const controlledChildren = useMemo(() => {
       // 没有name则直接return
       if (!name) {
