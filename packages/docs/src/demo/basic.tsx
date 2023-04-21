@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { Field, FormObserver, observer, useForm } from '@formable/react';
 import { FormStore } from '@formable/core';
 import { Form, FormItem } from '@formable/antd';
-import { Button, Input, Row, Col, Card, Switch, Radio, Select } from 'antd';
-import ReactJson from 'react-json-view';
-import 'antd/dist/antd.css';
+import FormPlayground from '../commom/playground';
+import { Button, Input, Switch, Radio, Select } from 'antd';
 
 const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
   const [bool, setBool] = useState(false);
@@ -165,18 +164,6 @@ const FormDemo: React.FC<{ form: FormStore }> = ({ form }) => {
   );
 };
 
-const JsonViewer = observer(({ form }: any) => {
-  return (
-    <>
-      <ReactJson
-        src={{
-          ...form.values,
-        }}
-      />
-    </>
-  );
-});
-
 const Layout = () => {
   const [form] = useForm({
     initialValues: {
@@ -208,16 +195,9 @@ const Layout = () => {
   form.registerListener('age', ['radio'], 'radio.value === 0', { value: 666, required: false });
 
   return (
-    <Row gutter={20}>
-      <Col span={12}>
-        <FormDemo form={form} />
-      </Col>
-      <Col span={12}>
-        <Card>
-          <JsonViewer form={form} />
-        </Card>
-      </Col>
-    </Row>
+    <FormPlayground form={form}>
+      <FormDemo form={form} />
+    </FormPlayground>
   );
 };
 
