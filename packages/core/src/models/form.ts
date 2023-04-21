@@ -26,7 +26,7 @@ import { logRegisterInfo } from '../utils/log';
 export class FormStore {
   @observable name: string;
 
-  @observable display: FormDisplayType;
+  @observable display: FormDisplayType = 'edit';
 
   @observable fieldMap: Record<string, FieldStore> = {};
 
